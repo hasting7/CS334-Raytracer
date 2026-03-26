@@ -6,3 +6,8 @@
 *.obj
 *.o
 *.exe
+/src/*.obj
+/src/*.lib
+/src/*.dll
+/src/*.pdb
+/src/*.ilk
