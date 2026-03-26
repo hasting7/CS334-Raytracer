@@ -3,9 +3,17 @@
 #include <vector>
 #include <cstdint>
 
+#include "Environment.h"
+
+static const int width = 800;
+static const int height = 600;
+
+
+
+
 int main(int argc, char* argv[]) {
-    const int width = 800;
-    const int height = 600;
+
+    Environment env = Environment();
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
