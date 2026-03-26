@@ -9,26 +9,16 @@
 static const int width = 800;
 static const int height = 600;
 
+Environment enviornment = Environment(width,height);
+
+void initalize_scene() {
+
+}
 
 
 int main(int argc, char* argv[]) {
-    Vec3 a = Vec3(3,4,0);
-    Vec3 b = Vec3(0,2,3);
+    initalize_scene();
 
-    printf("a dot b: %.3f\n",Vec3::distance(a,b));
-
-
-    a.visualize();
-    // b.visualize();
-
-    // Vec3 c = -a;
-    // c.visualize();
-
-    // Vec3 d = a / 0.01f;
-    // d.visualize();
-    return 0;
-
-    Environment env = Environment();
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
@@ -70,9 +60,7 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
         }
-
-        // Example: set one pixel
-        framebuffer[100 * width + 100] = 0xFFFF0000; // opaque red in ARGB8888
+        enviornment.render(framebuffer);
 
         if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
             SDL_Log("UpdateTexture failed: %s", SDL_GetError());
