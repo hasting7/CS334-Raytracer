@@ -4,7 +4,9 @@
 
 class Camera {
 public:
-    Camera();
+    Camera() :  : Camera(Vec3(), 60) {};
+    Camera(Vec3 position, float fov);
 private:
     Vec3 position;
+    float fov;
 };

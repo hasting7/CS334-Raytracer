@@ -2,6 +2,6 @@
 
 #include "Vec3.h"
 
-Camera::Camera() {
-	this->position = Vec3();
+Camera::Camera(Vec3 position, float fov) : position(position), fov(fov) {
+
 }

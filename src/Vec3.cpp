@@ -91,14 +91,17 @@ Vec3 Vec3::operator/(float value) const {
 
 // EXTRA PROPERTIES
 
+// vec3 * vec3
 float Vec3::operator*(const Vec3& other) const {
 	return this->x * other.x + this->y * other.y + this->z * other.z;
 }
 
+// vec3.magnitude
 float Vec3::magnitude() const {
 	return std::sqrt(x * x + y * y + z * z);
 }
 
+// Vec3::distance(vec3 v1, vec3 v2)
 float Vec3::distance(const Vec3& a, const Vec3& b) {
     return (a - b).magnitude();
 }
