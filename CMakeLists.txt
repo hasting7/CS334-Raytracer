@@ -11,6 +11,7 @@ add_executable(cs334_raytracer
     src/Environment.cpp
     src/Camera.cpp
     src/Vec3.cpp
+    src/Color.cpp
 )
 
 target_include_directories(cs334_raytracer PRIVATE include)

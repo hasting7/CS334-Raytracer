@@ -4,16 +4,21 @@
 #include <cstdint>
 
 #include "Environment.h"
+#include "Vec3.h"
 
 static const int width = 800;
 static const int height = 600;
 
+Environment enviornment = Environment(width,height);
 
+void initalize_scene() {
+
+}
 
 
 int main(int argc, char* argv[]) {
+    initalize_scene();
 
-    Environment env = Environment();
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
@@ -55,9 +60,7 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
         }
-
-        // Example: set one pixel
-        framebuffer[100 * width + 100] = 0xFFFF0000; // opaque red in ARGB8888
+        enviornment.render(framebuffer);
 
         if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
             SDL_Log("UpdateTexture failed: %s", SDL_GetError());
