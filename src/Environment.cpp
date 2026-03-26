@@ -2,6 +2,8 @@
 
 #include "Environment.h"
 #include "Camera.h"
+#include "Color.h"
+
 
 Environment::Environment(int width, int height) : width(width), height(height) {
 	this->camera = Camera();
@@ -9,11 +11,14 @@ Environment::Environment(int width, int height) : width(width), height(height) {
 
 void Environment::render(std::vector<uint32_t> &framebuffer) {
 	int x_rel, y_rel;
+
+	Color color;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			x_rel = 255 * ((float)i / height);
 			y_rel = 255 * ((float)j / width);
-			framebuffer[i * width + j] = 0xFF000000 | ((x_rel  & 0xFF) << 16) | ((y_rel  & 0xFF) << 8);
+			color = Color(x_rel, y_rel,0);
+			framebuffer[i * width + j] = color.to_int();
 		}
 	}
 
