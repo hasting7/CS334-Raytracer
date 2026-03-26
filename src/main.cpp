@@ -4,14 +4,29 @@
 #include <cstdint>
 
 #include "Environment.h"
+#include "Vec3.h"
 
 static const int width = 800;
 static const int height = 600;
 
 
 
-
 int main(int argc, char* argv[]) {
+    Vec3 a = Vec3(3,4,0);
+    Vec3 b = Vec3(0,2,3);
+
+    printf("a dot b: %.3f\n",Vec3::distance(a,b));
+
+
+    a.visualize();
+    // b.visualize();
+
+    // Vec3 c = -a;
+    // c.visualize();
+
+    // Vec3 d = a / 0.01f;
+    // d.visualize();
+    return 0;
 
     Environment env = Environment();
 
