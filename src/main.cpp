@@ -5,6 +5,7 @@
 
 #include "Environment.h"
 #include "Vec3.h"
+#include "Object.h"
 
 static const int width = 800;
 static const int height = 600;
@@ -12,6 +13,13 @@ static const int height = 600;
 Environment enviornment = Environment(width,height);
 
 void initalize_scene() {
+    // this is adding a red ball to the scene
+
+    // idk if this is the best way to do it but for now
+    Material red = Material();
+    red.color = Color(255,0,0);
+
+    enviornment.add_object(std::make_unique<Sphere>(Vec3(), red, 5.0));
 
 }
 
