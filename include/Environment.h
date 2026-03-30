@@ -4,6 +4,7 @@
 #include "Ray.h"
 #include "Color.h"
 #include "Object.h"
+#include "Vec3.h"
 #include <vector>
 
 class Environment {
@@ -15,6 +16,7 @@ public:
     void add_object(std::unique_ptr<Object> object);
 private:
 	std::vector<std::unique_ptr<Object>> objects;
+	std::vector<Vec3> point_lights;
 	Camera camera;
 	int width;
 	int height;

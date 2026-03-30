@@ -17,6 +17,10 @@ void Environment::add_object(std::unique_ptr<Object> object) {
 	objects.push_back(std::move(object));
 }
 
+void Environment::add_point_light(const Vec3& position) {
+	point_lights.push_back(position);
+}
+
 void Environment::render(std::vector<uint32_t> &framebuffer) {
 	Color color;
 	for (int y = 0; y < height; y++) {
