@@ -10,7 +10,7 @@
 Environment::Environment(int width, int height) : width(width), height(height) {
 	camera = Camera();
 	ray_depth = 1;
-	rays_per_pixel =1 ;
+	rays_per_pixel = 1;
 }
 
 void Environment::add_object(std::unique_ptr<Object> object) {
