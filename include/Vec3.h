@@ -1,7 +1,6 @@
 #pragma once
 
-class Vec3 {
-public:
+struct Vec3 {
     Vec3() : x(0), y(0), z(0) {}
     Vec3(float x, float y) : x(x), y(y), z(0) {}
     Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
@@ -43,5 +42,4 @@ public:
     static float distance(const Vec3& a, const Vec3& b);
 
     float x, y, z;
-private:
 };
