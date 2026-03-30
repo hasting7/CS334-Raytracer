@@ -16,7 +16,10 @@ public:
     void add_object(std::unique_ptr<Object> object);
     void add_point_light(const Vec3& position);
 private:
+	// all objects in the scene that can be seen / have material (NOT lights)
 	std::vector<std::unique_ptr<Object>> objects;
+	
+	// all point lights in the scene, later we can have light as a material property
 	std::vector<Vec3> point_lights;
 	Camera camera;
 	int width;
