@@ -14,6 +14,7 @@ public:
     Color shoot_ray(const Ray& ray, int depth);
 
     void add_object(std::unique_ptr<Object> object);
+    void add_point_light(const Vec3& position);
 private:
 	std::vector<std::unique_ptr<Object>> objects;
 	std::vector<Vec3> point_lights;
