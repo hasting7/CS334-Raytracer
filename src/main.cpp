@@ -20,6 +20,7 @@ void initalize_scene() {
     red.color = Color(255,0,0);
 
     enviornment.add_object(std::make_unique<Sphere>(Vec3(), red, 5.0));
+    enviornment.add_point_light(Vec3(100,100,0));
 
 }
 
