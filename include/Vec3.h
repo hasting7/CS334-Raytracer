@@ -10,14 +10,14 @@ public:
 
     // subtraction properties
     Vec3 operator-() const;
-    Vec3& operator-=(Vec3& other);
+    Vec3& operator-=(const Vec3& other); // FIXED: Added const
     Vec3 operator-(const Vec3& other) const;
 
 	Vec3& operator-=(float value);
     Vec3 operator-(float value) const;
 
     // addtion properties
-    Vec3& operator+=(Vec3& other);
+    Vec3& operator+=(const Vec3& other); // FIXED: Added const
     Vec3 operator+(const Vec3& other) const;
 
     Vec3& operator+=(float value);
@@ -38,9 +38,15 @@ public:
 
     // magnitude
     float magnitude() const;
+    
+    // normalize (returns a unit vector)
+    Vec3 normalize() const;
 
     // distance
     static float distance(const Vec3& a, const Vec3& b);
+    
+    // reflection
+    static Vec3 reflect(const Vec3& v, const Vec3& n);
 
     float x, y, z;
 private:
