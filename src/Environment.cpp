@@ -108,7 +108,7 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
 
             // find convergence point
             Vec3 dir = camera.get_dir(float(i) / (width - 1), float(height - 1 - j) / (height - 1));
-            Vec3 convergence_point = camera->origin + camera->focal_length * dir;
+            Vec3 focal_point = camera.origin + dir * camera.focal_distance;
 
             for (int s = 0; s < samples_per_pixel; s++) {
                 // float u = (float(i) + random_float()) / (width - 1);
@@ -120,9 +120,21 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
                 // 2. ray origin -> add to camera->origin
                 // 3. ray dir -> convergence_point
 
-                float r = (1.0f - random_float()) * camera->aperture;
+                // calculate random r and theta
+                // r -> [0, apeture]
+                // theta -> [0, 2pi] (radians) 
 
-                pixel_color += compute_ray_color(ray, 0);
+                float theta = random_float() * 3.14159265358979323846f * 2.0f;
+                float r = (1.0f - random_float()) * camera.aperture;
+
+                float dx = std::cos(theta) * r;
+                float dy = std::sin(theta) * r;
+
+                Vec3 new_origin = camera.origin + Vec3(dx, dy, 0);
+
+                Ray final_ray = Ray(new_origin, focal_point - new_origin);
+
+                pixel_color += compute_ray_color(final_ray, 0);
             }
 
 

@@ -15,21 +15,36 @@ Environment environment = Environment(width, height);
 
 void initialize_scene() {
     // Mat params: Color, Ambient, Diffuse, Reflectivity
-    Material mat_red(Color(255, 50, 50), 0.1f, 0.9f, 0.1f);      // Slightly shiny
-    Material mat_mirror(Color(200, 200, 200), 0.0f, 0.1f, 1.0f); // Almost perfect mirror
-    Material mat_blue(Color(50, 50, 255), 0.1f, 0.9f, 0.2f);     // Shiny plastic
-    Material mat_floor(Color(150, 150, 150), 0.1f, 0.9f, 0.3f);  // Glossy floor
+    // Lower reflectivity makes blur easier to judge visually
+    Material mat_red(Color(255, 60, 60), 0.1f, 0.9f, 0.1f);
+    Material mat_green(Color(60, 255, 60), 0.1f, 0.9f, 0.1f);
+    Material mat_blue(Color(60, 60, 255), 0.1f, 0.9f, 0.1f);
+    Material mat_floor(Color(150, 150, 150), 0.1f, 0.9f, 0.2f);
 
-    environment.add_object(std::make_shared<Sphere>(Vec3(0.0f, 0.0f, -3.0f), 1.0f, mat_mirror));
-    environment.add_object(std::make_shared<Sphere>(Vec3(-2.5f, 0.0f, -4.0f), 1.0f, mat_red));
-    environment.add_object(std::make_shared<Sphere>(Vec3(2.5f, 0.0f, -4.0f), 1.0f, mat_blue));
-    
+    // 3 spheres at increasing depth from the camera
+    // Front sphere
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(-2.0f, 0.0f, -3.0f), 1.0f, mat_red
+    ));
+
+    // Middle sphere
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0.0f, 0.0f, -5.0f), 1.0f, mat_green
+    ));
+
+    // Back sphere
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(2.0f, 0.0f, -7.0f), 1.0f, mat_blue
+    ));
+
     // Floor
-    environment.add_object(std::make_shared<Sphere>(Vec3(0.0f, -101.0f, -3.0f), 100.0f, mat_floor));
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0.0f, -101.0f, -5.0f), 100.0f, mat_floor
+    ));
 
     // Lights
-    environment.add_light(Light(Vec3(0.0f, 10.0f, 0.0f), 1.0f));
-    environment.add_light(Light(Vec3(-5.0f, 5.0f, -2.0f), 0.5f));
+    environment.add_light(Light(Vec3(0.0f, 8.0f, 2.0f), 1.0f));
+    environment.add_light(Light(Vec3(-6.0f, 4.0f, 0.0f), 0.4f));
 }
 
 int main(int argc, char* argv[]) {
