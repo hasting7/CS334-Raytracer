@@ -14,5 +14,6 @@ all material properties should go here once we know what we want to do
 */
 
 struct Material {
-    Color color{255, 255, 255};
+    Color color{1.0f, 1.0f, 1.0f};
+    Color emission{0.0f,0.0f,0.0f};
 };

@@ -41,5 +41,15 @@ struct Vec3 {
     // distance
     static float distance(const Vec3& a, const Vec3& b);
 
+    // cross product
+
+    static Vec3 cross(const Vec3& a, const Vec3& b);
+
+    // normalize
+    Vec3 normalize() const;
+
+
     float x, y, z;
 };
+
+Vec3 random_hemisphere_dir(const Vec3& normal);

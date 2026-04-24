@@ -11,9 +11,10 @@ public:
 	Object(const Vec3& position, const Material& material) : position(position), material(material) {};
 	virtual ~Object() = default;
 	virtual Hit intersect(const Ray& ray) const = 0;
-private:
 	Vec3 position;
 	Material material;
+private:
+
 };
 
 class Sphere : public Object {

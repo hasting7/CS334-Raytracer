@@ -7,26 +7,34 @@
 #include "Vec3.h"
 #include "Object.h"
 
-static const int width = 800;
-static const int height = 600;
+static const int width = 400;
+static const int height = 300;
 
-Environment enviornment = Environment(width,height);
+Environment environment = Environment(width,height);
 
-void initalize_scene() {
-    // this is adding a red ball to the scene
+void initialize_scene() {
+    Material ball_a;
+    ball_a.color = Color(0.85f, 0.25f, 0.15f); // warm red
 
-    // idk if this is the best way to do it but for now
-    Material red = Material();
-    red.color = Color(255,0,0);
+    Material ball_b;
+    ball_b.color = Color(0.2f, 0.45f, 0.9f); // cool blue
+    ball_b.emission = Color(0.0f, 0.05f, 0.0f); 
 
-    enviornment.add_object(std::make_unique<Sphere>(Vec3(), red, 5.0));
-    enviornment.add_point_light(Vec3(100,100,0));
+    Material light;
+    light.emission = Color(90.0f, 80.5f, 70.0f); // warm white, bright
 
+    // big red ball, sitting low
+    environment.add_object(std::make_unique<Sphere>(Vec3(-12.0f, -1.0f, 30.0f), ball_a, 10.0f));
+
+    // smaller blue ball, sitting higher
+    environment.add_object(std::make_unique<Sphere>(Vec3(10.0f, 1.5f, 28.0f), ball_b, 8.0f));
+
+    // light ball — centered between them, slightly above and closer to camera
+    environment.add_object(std::make_unique<Sphere>(Vec3(-0.2f, 2.0f, -50.0f), light, 2.0f));
 }
 
-
 int main(int argc, char* argv[]) {
-    initalize_scene();
+    initialize_scene();
 
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -63,22 +71,28 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event e;
 
+    int frame_count = 0;
+
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) {
                 running = false;
             }
         }
-        enviornment.render(framebuffer);
+        environment.render(framebuffer);
 
         if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
             SDL_Log("UpdateTexture failed: %s", SDL_GetError());
             break;
         }
 
-        SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, texture, nullptr, nullptr);
-        SDL_RenderPresent(renderer);
+        if (frame_count % 1 == 0) {
+            SDL_RenderClear(renderer);
+            SDL_RenderTexture(renderer, texture, nullptr, nullptr);
+            SDL_RenderPresent(renderer);
+        }
+
+        frame_count++;
     }
 
     SDL_DestroyTexture(texture);

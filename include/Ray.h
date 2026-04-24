@@ -8,4 +8,6 @@ struct Ray {
 	Ray() : Ray(Vec3(), Vec3()) {};
 	Vec3 origin;
 	Vec3 dir;
+
+	Vec3 at(float t) const;
 };
