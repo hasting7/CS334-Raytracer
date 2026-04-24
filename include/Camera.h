@@ -9,12 +9,12 @@ public:
     Camera(Vec3 position, float aspect_ratio);
     
     Ray get_ray(float u, float v) const;
-private:
+    Vec3 get_dir(float u, float v) const;
+    float focal_length;
+    float aperture;
     Vec3 origin;
+private:
     Vec3 lower_left_corner;
     Vec3 horizontal;
     Vec3 vertical;
-
-    float focal_length;
-    float aperture;
 };

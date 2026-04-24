@@ -107,17 +107,24 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
             Vec3 pixel_color(0, 0, 0);
 
             // find convergence point
-            Vec3 dir = camera.get_ray(float(i), float(height - 1 - j));
-            Vec3 C = camera->origin + camera->focal_length * 
+            Vec3 dir = camera.get_dir(float(i) / (width - 1), float(height - 1 - j) / (height - 1));
+            Vec3 convergence_point = camera->origin + camera->focal_length * dir;
 
             for (int s = 0; s < samples_per_pixel; s++) {
-                float u = (float(i) + random_float()) / (width - 1);
-                float v = (float(height - 1 - j) + random_float()) / (height - 1);
+                // float u = (float(i) + random_float()) / (width - 1);
+                // float v = (float(height - 1 - j) + random_float()) / (height - 1);
                 
-                Ray ray = camera.get_ray(u, v);
+                // Ray ray = camera.get_ray(u, v);
+
+                // 1. calculate random offset using aperture 
+                // 2. ray origin -> add to camera->origin
+                // 3. ray dir -> convergence_point
+
+                float r = (1.0f - random_float()) * camera->aperture;
 
                 pixel_color += compute_ray_color(ray, 0);
             }
+
 
             // Average the samples
             pixel_color /= (float)samples_per_pixel;

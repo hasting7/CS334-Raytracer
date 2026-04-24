@@ -20,3 +20,7 @@ Ray Camera::get_ray(float u, float v) const {
     Vec3 direction = lower_left_corner + horizontal * u + vertical * v - origin;
     return Ray(origin, direction.normalize());
 }
+
+Vec3 Camera::get_dir(float u, float v) const {
+    return lower_left_corner + horizontal * u + vertical * v - origin;
+}
