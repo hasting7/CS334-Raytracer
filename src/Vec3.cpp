@@ -73,6 +73,7 @@ Vec3 Vec3::operator*(float value) const {
 	return Vec3(this->x * value, this->y * value, this->z * value);
 }
 
+
 // DIVISION RULES
 
 Vec3& Vec3::operator/=(float value) {

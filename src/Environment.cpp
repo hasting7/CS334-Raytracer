@@ -98,7 +98,12 @@ Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
     // Background Gradient (Converted to float range 0.0 - 1.0)
     Vec3 unit_direction = ray.direction.normalize();
     float t = 0.5f * (unit_direction.y + 1.0f);
-    return Vec3(1.0f - t + t * 0.5f, 1.0f - t + t * 0.7f, 1.0f);
+
+    // white near horizon -> sky blue upward
+    Vec3 white(1.0f, 1.0f, 1.0f);
+    Vec3 sky_blue(0.0f, 0.9f, 1.0f);
+
+    return white * (1.0f - t)  + sky_blue * t;
 }
 
 void Environment::render(std::vector<uint32_t> &framebuffer) {
@@ -130,6 +135,7 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
                 float dx = std::cos(theta) * r;
                 float dy = std::sin(theta) * r;
 
+                // in the future maybe make dx and dy relative to camera coords rather than just x, y directly
                 Vec3 new_origin = camera.origin + Vec3(dx, dy, 0);
 
                 Ray final_ray = Ray(new_origin, focal_point - new_origin);
@@ -141,10 +147,13 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
             // Average the samples
             pixel_color /= (float)samples_per_pixel;
 
-            // GAMMA CORRECTION: (gamma = 2.0 -> apply square root)
+            // // GAMMA CORRECTION: (gamma = 2.0 -> apply square root)
             float r = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.x)));
             float g = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.y)));
             float b = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.z)));
+            // float r = pixel_color.x;
+            // float g = pixel_color.y;
+            // float b = pixel_color.z;
 
             Color final_color((int)(r * 255), (int)(g * 255), (int)(b * 255));
             framebuffer[j * width + i] = final_color.to_int();

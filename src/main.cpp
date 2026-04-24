@@ -19,7 +19,7 @@ void initialize_scene() {
     Material mat_red(Color(255, 60, 60), 0.1f, 0.9f, 0.1f);
     Material mat_green(Color(60, 255, 60), 0.1f, 0.9f, 0.1f);
     Material mat_blue(Color(60, 60, 255), 0.1f, 0.9f, 0.1f);
-    Material mat_floor(Color(150, 150, 150), 0.1f, 0.9f, 0.2f);
+    Material mat_floor(Color(255, 255, 255), 0.1f, 0.9f, 0.0f);
 
     // 3 spheres at increasing depth from the camera
     // Front sphere
