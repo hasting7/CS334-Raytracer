@@ -106,12 +106,16 @@ void Environment::render(std::vector<uint32_t> &framebuffer) {
         for (int i = 0; i < width; i++) {
             Vec3 pixel_color(0, 0, 0);
 
-            // ANTI-ALIASING: Sample the same pixel multiple times with tiny random offsets
+            // find convergence point
+            Vec3 dir = camera.get_ray(float(i), float(height - 1 - j));
+            Vec3 C = camera->origin + camera->focal_length * 
+
             for (int s = 0; s < samples_per_pixel; s++) {
                 float u = (float(i) + random_float()) / (width - 1);
                 float v = (float(height - 1 - j) + random_float()) / (height - 1);
                 
                 Ray ray = camera.get_ray(u, v);
+
                 pixel_color += compute_ray_color(ray, 0);
             }
 

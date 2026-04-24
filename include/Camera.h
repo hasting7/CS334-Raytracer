@@ -14,4 +14,7 @@ private:
     Vec3 lower_left_corner;
     Vec3 horizontal;
     Vec3 vertical;
+
+    float focal_length;
+    float aperture;
 };

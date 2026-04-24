@@ -7,11 +7,13 @@ Camera::Camera(Vec3 position, float aspect_ratio) {
     
     float viewport_height = 2.0f;
     float viewport_width = aspect_ratio * viewport_height;
-    float focal_length = 1.0f;
 
     this->horizontal = Vec3(viewport_width, 0.0f, 0.0f);
     this->vertical = Vec3(0.0f, viewport_height, 0.0f);
-    this->lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - Vec3(0.0f, 0.0f, focal_length);
+    this->lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - Vec3(0.0f, 0.0f, 1.0f);
+
+    focal_length = 1.0f;
+    aperture = 1.0f;
 }
 
 Ray Camera::get_ray(float u, float v) const {
