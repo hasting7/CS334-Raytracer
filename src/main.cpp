@@ -12,17 +12,17 @@
 static const int width = 800;
 static const int height = 600;
 
-Environment environment = Environment(width, height);
+Environment environment = Environment(width, height, 12);
 
 // 
 
 void initialize_scene() {
     // Mat params: Color, Ambient, Diffuse, Reflectivity
     // Lower reflectivity makes blur easier to judge visually
-    Material mat_red(Color(255, 60, 60), 0.1f, 0.9f, 0.1f);
-    Material mat_green(Color(60, 255, 60), 0.1f, 0.9f, 0.1f);
-    Material mat_blue(Color(60, 60, 255), 0.1f, 0.9f, 0.1f);
-    Material mat_floor(Color(255, 255, 255), 0.1f, 0.9f, 0.0f);
+    Material mat_red(Color(255, 60, 60), 0.1f, 0.9f, 0.0f);
+    Material mat_green(Color(60, 255, 60), 0.1f, 0.9f, 0.0f);
+    Material mat_blue(Color(60, 60, 255), 0.1f, 0.9f, 0.0f);
+    Material mat_floor(Color(240, 240, 240), 0.1f, 0.9f, 0.0f);
 
     // 3 spheres at increasing depth from the camera
     // Front sphere
@@ -32,12 +32,12 @@ void initialize_scene() {
 
     // Middle sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0.0f, 0.0f, -5.0f), 1.0f, mat_green
+        Vec3(0.0f, 0.0f, -5.0f), 1.0f, mat_blue
     ));
 
     // Back sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(2.0f, 0.0f, -7.0f), 1.0f, mat_blue
+        Vec3(2.0f, 0.0f, -7.0f), 1.0f, mat_green
     ));
 
     // Floor
@@ -74,18 +74,18 @@ int main(int argc, char* argv[]) {
         height
     );
 
-    std::vector<uint32_t> framebuffer(width * height, 0xFF000000);
+
 
     // Render the scene exactly ONCE. (With AA and reflections, this takes a few seconds)
     time_t start_time, end_time;
     time(&start_time);
     printf("Rendering...\n");
-    environment.render(framebuffer);
+    environment.render();
     time(&end_time);
     double elapsed_time = difftime(end_time, start_time);
     printf("Render complete! (%.2f seconds)\n", elapsed_time);
     
-    if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
+    if (!SDL_UpdateTexture(texture, nullptr, environment.framebuffer.data(), width * sizeof(uint32_t))) {
         SDL_Log("UpdateTexture failed: %s", SDL_GetError());
     }
 

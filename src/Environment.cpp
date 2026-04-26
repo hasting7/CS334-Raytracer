@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <random>
+#include <thread>
 
 // Helper to generate random numbers for Anti-Aliasing
 inline float random_float() {
@@ -13,9 +14,9 @@ inline float random_float() {
     return distribution(generator);
 }
 
-Environment::Environment(int width, int height) : width(width), height(height) {
+Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 7.0f, 0.08f);
+    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 5.0f, 0.08f);
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
@@ -102,13 +103,28 @@ Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
     // white near horizon -> sky blue upward
     Vec3 white(1.0f, 1.0f, 1.0f);
     Vec3 sky_blue(0.0f, 0.9f, 1.0f);
+    // return white;
 
     return white * (1.0f - t)  + sky_blue * t;
 }
 
-void Environment::render(std::vector<uint32_t> &framebuffer) {
+void Environment::render() {
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < thread_count; i++) {
+        threads.emplace_back(&Environment::render_thread, this, i);
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
+}
+
+void Environment::render_thread(int pixel_offset) {
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
+            // skip for multithreading
+            if ((j * width + i) % thread_count != pixel_offset) continue;
 
             Vec3 pixel_color(0, 0, 0);
 
