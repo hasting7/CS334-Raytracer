@@ -27,10 +27,101 @@ void Environment::add_light(const Light& light) {
     lights.push_back(light);
 }
 
+// Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
+//     // If we've bounced too many times, stop reflecting
+//     if (depth >= max_depth) {
+//         return Vec3(0, 0, 0); 
+//     }
+
+//     HitRecord rec;
+//     bool hit_anything = false;
+//     float closest_so_far = 1e9f;
+//     HitRecord temp_rec;
+
+//     for (const auto& object : objects) {
+//         if (object->hit(ray, 0.001f, closest_so_far, temp_rec)) {
+//             hit_anything = true;
+//             closest_so_far = temp_rec.t;
+//             rec = temp_rec;
+//         }
+//     }
+
+//     if (hit_anything) {
+//         float total_diffuse = 0.0f;
+//         float total_specular = 0.0f;
+        
+//         for (const auto& light : lights) {
+//             Vec3 light_dir = (light.position - rec.point).normalize();
+            
+//             // Shadows
+//             Ray shadow_ray(rec.point + rec.normal * 0.001f, light_dir);
+//             bool in_shadow = false;
+//             HitRecord shadow_rec;
+//             float distance_to_light = (light.position - rec.point).magnitude();
+            
+//             for (const auto& object : objects) {
+//                 if (object->hit(shadow_ray, 0.001f, distance_to_light, shadow_rec)) {
+//                     in_shadow = true;
+//                     break;
+//                 }
+//             }
+            
+//             if (!in_shadow) {
+//                 // Diffuse
+//                 float diff = std::max(0.0f, rec.normal * light_dir);
+//                 total_diffuse += diff * light.intensity;
+
+//                 // Specular / shiny highlight
+//                 Vec3 view_dir = (-ray.direction).normalize();
+//                 Vec3 halfway_dir = (light_dir + view_dir).normalize();
+
+//                 float spec_angle = std::max(0.0f, rec.normal * halfway_dir);
+//                 float spec = std::pow(spec_angle, 200.0f); // 64 should be shininess
+
+//                 total_specular += spec * 0.01f * light.intensity; // 0.5 should be specular_strength
+//             }
+//         }
+
+//         float lighting = rec.material.ambient + rec.material.diffuse * total_diffuse;
+//         lighting = std::min(1.0f, lighting);
+        
+//         // Base color scaled from 0.0 to 1.0
+//         Vec3 base_color(
+//             (rec.material.color.r / 255.0f) * lighting + 255.0f * total_specular,
+//             (rec.material.color.g / 255.0f) * lighting + 255.0f * total_specular,
+//             (rec.material.color.b / 255.0f) * lighting + 255.0f * total_specular
+//         );
+
+//         // Reflection Calculation
+//         if (rec.material.reflectivity > 0.0f) {
+//             Vec3 reflect_dir = Vec3::reflect(ray.direction.normalize(), rec.normal);
+//             Ray reflected_ray(rec.point + rec.normal * 0.001f, reflect_dir);
+            
+//             // Recursively get the color from the bounce
+//             Vec3 reflected_color = compute_ray_color(reflected_ray, depth + 1);
+            
+//             // Blend the object's color with the reflection
+//             base_color = base_color * (1.0f - rec.material.reflectivity) + reflected_color * rec.material.reflectivity;
+//         }
+
+//         return base_color;
+//     }
+
+//     // Background Gradient (Converted to float range 0.0 - 1.0)
+//     Vec3 unit_direction = ray.direction.normalize();
+//     float t = 0.5f * (unit_direction.y + 1.0f);
+
+//     // white near horizon -> sky blue upward
+//     Vec3 white(1.0f, 1.0f, 1.0f);
+//     Vec3 sky_blue(0.0f, 0.9f, 1.0f);
+//     // return white;
+
+//     return white * (1.0f - t)  + sky_blue * t;
+// }
+
 Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
-    // If we've bounced too many times, stop reflecting
     if (depth >= max_depth) {
-        return Vec3(0, 0, 0); 
+        return Vec3(0.0f, 0.0f, 0.0f);
     }
 
     HitRecord rec;
@@ -47,65 +138,89 @@ Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
     }
 
     if (hit_anything) {
+        Vec3 material_color(
+            rec.material.color.r / 255.0f,
+            rec.material.color.g / 255.0f,
+            rec.material.color.b / 255.0f
+        );
+
         float total_diffuse = 0.0f;
-        
+        float total_specular = 0.0f;
+
         for (const auto& light : lights) {
             Vec3 light_dir = (light.position - rec.point).normalize();
-            
-            // Shadows
+
             Ray shadow_ray(rec.point + rec.normal * 0.001f, light_dir);
+
             bool in_shadow = false;
             HitRecord shadow_rec;
             float distance_to_light = (light.position - rec.point).magnitude();
-            
+
             for (const auto& object : objects) {
                 if (object->hit(shadow_ray, 0.001f, distance_to_light, shadow_rec)) {
                     in_shadow = true;
                     break;
                 }
             }
-            
+
             if (!in_shadow) {
                 float diff = std::max(0.0f, rec.normal * light_dir);
                 total_diffuse += diff * light.intensity;
+
+                Vec3 view_dir = (ray.direction * -1.0f).normalize();
+                Vec3 halfway_dir = (light_dir + view_dir).normalize();
+
+                float spec_angle = std::max(0.0f, rec.normal * halfway_dir);
+
+                float shininess = 200.0f;
+                float specular_strength = 0.01f;
+
+                float spec = std::pow(spec_angle, shininess);
+                total_specular += spec * specular_strength * light.intensity;
             }
         }
-        
-        float lighting = rec.material.ambient + rec.material.diffuse * total_diffuse;
-        lighting = std::min(1.0f, lighting);
-        
-        // Base color scaled from 0.0 to 1.0
-        Vec3 base_color(
-            (rec.material.color.r / 255.0f) * lighting,
-            (rec.material.color.g / 255.0f) * lighting,
-            (rec.material.color.b / 255.0f) * lighting
-        );
 
-        // Reflection Calculation
+        float direct_strength = rec.material.ambient + rec.material.diffuse * total_diffuse;
+
+        Vec3 direct_color = material_color * direct_strength;
+        Vec3 specular_color = Vec3(1.0f, 1.0f, 1.0f) * total_specular;
+
+        Vec3 color = direct_color + specular_color;
+
+        // Monte Carlo diffuse bounce
+        float indirect_strength = 0.5f;
+
+        Vec3 bounce_dir = random_in_hemisphere(rec.normal);
+        Ray bounce_ray(rec.point + rec.normal * 0.001f, bounce_dir);
+
+        Vec3 bounced_color = compute_ray_color(bounce_ray, depth + 1);
+
+        Vec3 indirect_color = multiply_color(material_color, bounced_color);
+        indirect_color = indirect_color * indirect_strength * rec.material.diffuse;
+
+        color = color + indirect_color;
+
+        // Mirror reflection, still optional
         if (rec.material.reflectivity > 0.0f) {
             Vec3 reflect_dir = Vec3::reflect(ray.direction.normalize(), rec.normal);
             Ray reflected_ray(rec.point + rec.normal * 0.001f, reflect_dir);
-            
-            // Recursively get the color from the bounce
+
             Vec3 reflected_color = compute_ray_color(reflected_ray, depth + 1);
-            
-            // Blend the object's color with the reflection
-            base_color = base_color * (1.0f - rec.material.reflectivity) + reflected_color * rec.material.reflectivity;
+
+            color = color * (1.0f - rec.material.reflectivity)
+                  + reflected_color * rec.material.reflectivity;
         }
 
-        return base_color;
+        return color;
     }
 
-    // Background Gradient (Converted to float range 0.0 - 1.0)
     Vec3 unit_direction = ray.direction.normalize();
     float t = 0.5f * (unit_direction.y + 1.0f);
 
-    // white near horizon -> sky blue upward
     Vec3 white(1.0f, 1.0f, 1.0f);
     Vec3 sky_blue(0.0f, 0.9f, 1.0f);
-    // return white;
 
-    return white * (1.0f - t)  + sky_blue * t;
+    return white * (1.0f - t) + sky_blue * t;
 }
 
 void Environment::render() {

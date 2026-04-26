@@ -9,8 +9,8 @@
 #include "Vec3.h"
 #include "Sphere.h"
 
-static const int width = 800;
-static const int height = 600;
+static const int width = 400;
+static const int height = 300;
 
 Environment environment = Environment(width, height, 12);
 
@@ -47,7 +47,7 @@ void initialize_scene() {
 
     // Lights
     environment.add_light(Light(Vec3(0.0f, 8.0f, 2.0f), 1.0f));
-    environment.add_light(Light(Vec3(-6.0f, 4.0f, 0.0f), 0.4f));
+    // environment.add_light(Light(Vec3(-6.0f, 4.0f, 0.0f), 0.4f));
 }
 
 int main(int argc, char* argv[]) {
