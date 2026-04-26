@@ -28,5 +28,5 @@ private:
     
     // Quality settings
     int max_depth = 4;           // How many times a ray can bounce (Reflections)
-    int samples_per_pixel = 50;  // Anti-Aliasing (Multisampling)
+    int samples_per_pixel = 300;  // Anti-Aliasing (Multisampling)
 };

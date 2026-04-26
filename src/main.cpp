@@ -13,6 +13,8 @@ static const int height = 600;
 
 Environment environment = Environment(width, height);
 
+// 
+
 void initialize_scene() {
     // Mat params: Color, Ambient, Diffuse, Reflectivity
     // Lower reflectivity makes blur easier to judge visually

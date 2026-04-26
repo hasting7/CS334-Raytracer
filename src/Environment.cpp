@@ -15,7 +15,7 @@ inline float random_float() {
 
 Environment::Environment(int width, int height) : width(width), height(height) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio);
+    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 7.0f, 0.08f);
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {

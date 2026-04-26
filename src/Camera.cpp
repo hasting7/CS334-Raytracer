@@ -1,9 +1,11 @@
 #include "Camera.h"
 
-Camera::Camera() : Camera(Vec3(0, 0, 0), 800.0f / 600.0f) {}
+Camera::Camera() : Camera(Vec3(0, 0, 0), 800.0f / 600.0f, 1.0f, 0.01f) {}
 
-Camera::Camera(Vec3 position, float aspect_ratio) {
+Camera::Camera(Vec3 position, float aspect_ratio, float focal_distance, float aperture) {
     this->origin = position;
+    this->focal_distance = focal_distance;
+    this->aperture = aperture;
     
     float viewport_height = 2.0f;
     float viewport_width = aspect_ratio * viewport_height;

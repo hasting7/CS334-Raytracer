@@ -6,12 +6,12 @@
 class Camera {
 public:
     Camera();
-    Camera(Vec3 position, float aspect_ratio);
+    Camera(Vec3 position, float aspect_ratio, float focal_distance, float aperture);
     
     Ray get_ray(float u, float v) const;
     Vec3 get_dir(float u, float v) const;
-    float focal_distance = 6.0f;
-    float aperture = 0.3f; // 0.07f;
+    float focal_distance;
+    float aperture;
     Vec3 origin;
 private:
     Vec3 lower_left_corner;
