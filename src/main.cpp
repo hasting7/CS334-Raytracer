@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <ctime>
 
 #include "Environment.h"
 #include "Vec3.h"
@@ -76,9 +77,13 @@ int main(int argc, char* argv[]) {
     std::vector<uint32_t> framebuffer(width * height, 0xFF000000);
 
     // Render the scene exactly ONCE. (With AA and reflections, this takes a few seconds)
-    SDL_Log("Rendering raytraced scene, please wait...");
+    time_t start_time, end_time;
+    time(&start_time);
+    printf("Rendering...\n");
     environment.render(framebuffer);
-    SDL_Log("Render complete!");
+    time(&end_time);
+    double elapsed_time = difftime(end_time, start_time);
+    printf("Render complete! (%.2f seconds)\n", elapsed_time);
     
     if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
         SDL_Log("UpdateTexture failed: %s", SDL_GetError());

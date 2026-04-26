@@ -109,6 +109,7 @@ Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
 void Environment::render(std::vector<uint32_t> &framebuffer) {
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
+
             Vec3 pixel_color(0, 0, 0);
 
             // find convergence point
