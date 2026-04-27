@@ -16,7 +16,7 @@ inline float random_float() {
 
 Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 5, 8), aspect_ratio, 25.0f, 0.1f); // 0.08f
+    this->camera = Camera(Vec3(0, 4, 12), aspect_ratio, 12.0f, 0.1f); // 0.08f
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
@@ -36,6 +36,14 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
     bool needs_direct_light_sample = true;
 
     for (; ray_count < max_depth; ray_count++) {
+        // terminate early if no more light can do anything to scene
+        float throughput_strength = std::max(ray_color.r, std::max(ray_color.g, ray_color.b));
+
+        if (throughput_strength < 0.001f) {
+            break;
+        }
+
+
         needs_direct_light_sample = true;
         // // 1. Do direct light sampling
         // std::shared_ptr<Object> obj = sample_light_source();
@@ -56,30 +64,38 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
         if (record.hit) {
             Material material = record.material;
 
-            bool treat_as_glass = random_float() < material.transparency_probability;
-
-            if (treat_as_glass) {
+            if (material.transmission > 0.0f) {
                 needs_direct_light_sample = false;
                 // determine n1 and n2
                 double n1 = refractive_index;
                 double n2 = material.refractive_index;
-                Vec3 proper_normal = record.normal;
 
                 // we hit back face
                 if (!record.front_face) {
                     n2 = init_refractive_index;
-                    proper_normal *= -1;
 
                 }
+
                 // calculate outgoing dir
                 ray.origin = record.point;
-                ray.direction = apply_snells(ray.direction, proper_normal, n1, n2);
+                Vec3 refracted_dir = apply_snells(ray.direction, record.normal, n1, n2);
 
+                // cloudyness
+                if (material.glass_roughness > 0.0f) {
+                    refracted_dir = (
+                        refracted_dir +
+                        random_in_hemisphere(refracted_dir) * material.glass_roughness
+                    ).normalize();
+                }
+
+                ray.direction = refracted_dir;
 
                 // update refractive index to the new medium
                 refractive_index = n2;
 
-                ray_color *= material.color;
+                if (!record.front_face) {
+                    ray_color *= material.tint;
+                }
             } else {
 
                 Vec3 next_dir, inital_diffusion_vec;
@@ -103,7 +119,7 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
                 incoming_light += emitted_light * ray_color;
 
                 if (is_specular_reflection) {
-                    ray_color *= Color(1.0f, 1.0f, 1.0f); 
+                    ray_color *= material.specular_color; 
                 } else {
                     ray_color *= material.color;
                 }
