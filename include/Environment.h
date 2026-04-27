@@ -17,11 +17,14 @@ public:
     void render();
 
     std::vector<uint32_t> framebuffer;
+
     
 private:
     void render_thread(int pixel_offset);
     // Returns a Vec3 representing floating-point RGB (0.0 to 1.0)
-    Vec3 compute_ray_color(const Ray& ray, int depth);
+    // Vec3 compute_ray_color(const Ray& ray, int depth);
+    Color trace(Ray &ray, int max_depth);
+    HitRecord calculate_ray_collision(const Ray &ray);
 
     Camera camera;
     int width;
@@ -31,6 +34,6 @@ private:
     std::vector<Light> lights;
     
     // Quality settings
-    int max_depth = 4;           // How many times a ray can bounce (Reflections)
-    int samples_per_pixel = 50;  // Anti-Aliasing (Multisampling)
+    int max_depth = 50;           // How many times a ray can bounce (Reflections)
+    int samples_per_pixel = 100;  // Anti-Aliasing (Multisampling)
 };

@@ -4,11 +4,39 @@
 
 class Color {
 public:
-    Color() : Color(0,0,0) {};
-    Color(int r, int g, int b) : r(r), b(b), g(g) {};
+    float r, g, b;
 
-    int r, g, b;
+    Color();
+    Color(float r, float g, float b);
 
     uint32_t to_int() const;
-private:
+
+    // Color with Color
+    Color operator+(const Color& other) const;
+    Color operator-(const Color& other) const;
+    Color operator*(const Color& other) const;   // component-wise multiply
+    Color operator/(const Color& other) const;   // component-wise divide
+
+    // Color with float
+    Color operator+(float value) const;
+    Color operator-(float value) const;
+    Color operator*(float value) const;
+    Color operator/(float value) const;
+
+    // Compound assignment with Color
+    Color& operator+=(const Color& other);
+    Color& operator-=(const Color& other);
+    Color& operator*=(const Color& other);
+    Color& operator/=(const Color& other);
+
+    // Compound assignment with float
+    Color& operator+=(float value);
+    Color& operator-=(float value);
+    Color& operator*=(float value);
+    Color& operator/=(float value);
 };
+
+// float on left side
+Color operator+(float value, const Color& color);
+Color operator-(float value, const Color& color);
+Color operator*(float value, const Color& color);

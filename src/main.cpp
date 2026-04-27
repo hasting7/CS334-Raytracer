@@ -9,8 +9,8 @@
 #include "Vec3.h"
 #include "Sphere.h"
 
-static const int width = 400;
-static const int height = 300;
+static const int width = 800;
+static const int height = 600;
 
 Environment environment = Environment(width, height, 12);
 
@@ -18,35 +18,54 @@ Environment environment = Environment(width, height, 12);
 
 void initialize_scene() {
     // Mat params: Color, Ambient, Diffuse, Reflectivity
-    // Lower reflectivity makes blur easier to judge visually
-    Material mat_red(Color(255, 60, 60), 0.1f, 0.9f, 0.0f);
-    Material mat_green(Color(60, 255, 60), 0.1f, 0.9f, 0.0f);
-    Material mat_blue(Color(60, 60, 255), 0.1f, 0.9f, 0.0f);
-    Material mat_floor(Color(240, 240, 240), 0.1f, 0.9f, 0.0f);
+    Material glossy_red(Color(1.0f, 0.0f, 0.0f), 0.2f, 0.4f);
+    Material glossy_green(Color(0.0f, 1.0f, 0.0f), 0.2f, 0.4f);
+    Material mirror(Color(1,1,1),1.0f,0.98f);
+
+    Material blue_light(Color(0,0,1.0f),0.3f,0.2f);
+    blue_light.emission_color = Color(0,0,1);
+    blue_light.emission_strength = 1.2f;
+
+    Material ground(Color(1.0f, 1.0f, 1.0f), 1.0f, 0.2f);
+    // mat_blue.emission_strength = 0.5f;
+    // mat_blue.emission_color = Color(0,0,1);
+
+    Material light(Color(0.8f, 0.8f,0.8f), 0.1f, 1.0f);
+    light.emission_color = Color(1.0f, 1.0f, 1.0f);
+    light.emission_strength = 1;
 
     // 3 spheres at increasing depth from the camera
     // Front sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-2.0f, 0.0f, -3.0f), 1.0f, mat_red
+        Vec3(8, 4, -8), 4.0f, glossy_green
     ));
 
-    // Middle sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0.0f, 0.0f, -5.0f), 1.0f, mat_blue
+        Vec3(0, 3, -10), 3.0f, mirror
     ));
 
-    // Back sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(2.0f, 0.0f, -7.0f), 1.0f, mat_green
+        Vec3(-8, 4, -8), 4.0f, glossy_red
     ));
 
-    // Floor
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0.0f, -101.0f, -5.0f), 100.0f, mat_floor
+        Vec3(0, -1000.0f, 0), 1000.0f, ground
+    ));
+
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0, 1.0f, -0.5f), 1.0f, blue_light
+    ));
+
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0, 1100, 0), 750.0f, light
+    ));
+
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(-100, 20, 0), 50.0f, light
     ));
 
     // Lights
-    environment.add_light(Light(Vec3(0.0f, 8.0f, 2.0f), 1.0f));
+    environment.add_light(Light(Vec3(0.0f, 15.0f, 10.0f), 1.0f));
     // environment.add_light(Light(Vec3(-6.0f, 4.0f, 0.0f), 0.4f));
 }
 

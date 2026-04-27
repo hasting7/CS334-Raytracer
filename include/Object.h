@@ -4,7 +4,8 @@
 #include "Material.h"
 
 struct HitRecord {
-    float t;
+    bool hit = false;
+    float t = 1e9f;
     Vec3 point;
     Vec3 normal;
     Material material;
@@ -15,5 +16,5 @@ public:
     virtual ~Object() = default;
     
     // Abstract hit method for intersection logic
-    virtual bool hit(const Ray& ray, float t_min, float t_max, HitRecord& rec) const = 0;
+    virtual bool hit(const Ray& ray, float t_min, HitRecord& rec) const = 0;
 };

@@ -24,3 +24,7 @@ Ray Camera::get_ray(float u, float v) const {
 Vec3 Camera::get_dir(float u, float v) const {
     return lower_left_corner + horizontal * u + vertical * v - origin;
 }
+
+void Camera::focus_on_sphere(const Sphere obj) {
+    focal_distance = Vec3::distance(origin, obj.center);
+}

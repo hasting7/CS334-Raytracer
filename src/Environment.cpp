@@ -16,7 +16,7 @@ inline float random_float() {
 
 Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 5.0f, 0.08f);
+    this->camera = Camera(Vec3(0, 4, 5), aspect_ratio, 5, 0.11f); // 0.08f
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
@@ -27,201 +27,74 @@ void Environment::add_light(const Light& light) {
     lights.push_back(light);
 }
 
-// Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
-//     // If we've bounced too many times, stop reflecting
-//     if (depth >= max_depth) {
-//         return Vec3(0, 0, 0); 
-//     }
 
-//     HitRecord rec;
-//     bool hit_anything = false;
-//     float closest_so_far = 1e9f;
-//     HitRecord temp_rec;
+Color Environment::trace(Ray &ray, int max_depth) {
+    Color incoming_light = Color(0.0f,0.0f,0.0f);
+    Color ray_color = Color(1.0f,1.0f,1.0f);
+    HitRecord record;
+    int ray_count = 0;
 
-//     for (const auto& object : objects) {
-//         if (object->hit(ray, 0.001f, closest_so_far, temp_rec)) {
-//             hit_anything = true;
-//             closest_so_far = temp_rec.t;
-//             rec = temp_rec;
-//         }
-//     }
+    for (; ray_count < max_depth; ray_count++) {
+        record = calculate_ray_collision(ray);
+        if (record.hit) {
+            Material material = record.material;
+            Vec3 next_dir, inital_diffusion_vec;
+            ray.origin = record.point;
 
-//     if (hit_anything) {
-//         float total_diffuse = 0.0f;
-//         float total_specular = 0.0f;
-        
-//         for (const auto& light : lights) {
-//             Vec3 light_dir = (light.position - rec.point).normalize();
-            
-//             // Shadows
-//             Ray shadow_ray(rec.point + rec.normal * 0.001f, light_dir);
-//             bool in_shadow = false;
-//             HitRecord shadow_rec;
-//             float distance_to_light = (light.position - rec.point).magnitude();
-            
-//             for (const auto& object : objects) {
-//                 if (object->hit(shadow_ray, 0.001f, distance_to_light, shadow_rec)) {
-//                     in_shadow = true;
-//                     break;
-//                 }
-//             }
-            
-//             if (!in_shadow) {
-//                 // Diffuse
-//                 float diff = std::max(0.0f, rec.normal * light_dir);
-//                 total_diffuse += diff * light.intensity;
+            inital_diffusion_vec = (record.normal + random_vec3()).normalize();
 
-//                 // Specular / shiny highlight
-//                 Vec3 view_dir = (-ray.direction).normalize();
-//                 Vec3 halfway_dir = (light_dir + view_dir).normalize();
+            bool is_specular_reflection = random_float() < material.specular_probability;
 
-//                 float spec_angle = std::max(0.0f, rec.normal * halfway_dir);
-//                 float spec = std::pow(spec_angle, 200.0f); // 64 should be shininess
+            // check if object is reflective or not
+            if (is_specular_reflection) {
+                ray.direction = (1.0f - material.reflectivity) * inital_diffusion_vec + material.reflectivity * ray.direction.reflect(record.normal);
+            } else {
+                // not reflective
+                ray.direction = inital_diffusion_vec;
+            }
+            // determine new incoming light
+            Color emitted_light = material.emission_color * material.emission_strength;
+            // consider light strength
+            // add light, and tint it based on all the light we have seen so far
+            incoming_light += emitted_light * ray_color;
 
-//                 total_specular += spec * 0.01f * light.intensity; // 0.5 should be specular_strength
-//             }
-//         }
-
-//         float lighting = rec.material.ambient + rec.material.diffuse * total_diffuse;
-//         lighting = std::min(1.0f, lighting);
-        
-//         // Base color scaled from 0.0 to 1.0
-//         Vec3 base_color(
-//             (rec.material.color.r / 255.0f) * lighting + 255.0f * total_specular,
-//             (rec.material.color.g / 255.0f) * lighting + 255.0f * total_specular,
-//             (rec.material.color.b / 255.0f) * lighting + 255.0f * total_specular
-//         );
-
-//         // Reflection Calculation
-//         if (rec.material.reflectivity > 0.0f) {
-//             Vec3 reflect_dir = Vec3::reflect(ray.direction.normalize(), rec.normal);
-//             Ray reflected_ray(rec.point + rec.normal * 0.001f, reflect_dir);
-            
-//             // Recursively get the color from the bounce
-//             Vec3 reflected_color = compute_ray_color(reflected_ray, depth + 1);
-            
-//             // Blend the object's color with the reflection
-//             base_color = base_color * (1.0f - rec.material.reflectivity) + reflected_color * rec.material.reflectivity;
-//         }
-
-//         return base_color;
-//     }
-
-//     // Background Gradient (Converted to float range 0.0 - 1.0)
-//     Vec3 unit_direction = ray.direction.normalize();
-//     float t = 0.5f * (unit_direction.y + 1.0f);
-
-//     // white near horizon -> sky blue upward
-//     Vec3 white(1.0f, 1.0f, 1.0f);
-//     Vec3 sky_blue(0.0f, 0.9f, 1.0f);
-//     // return white;
-
-//     return white * (1.0f - t)  + sky_blue * t;
-// }
-
-Vec3 Environment::compute_ray_color(const Ray& ray, int depth) {
-    if (depth >= max_depth) {
-        return Vec3(0.0f, 0.0f, 0.0f);
-    }
-
-    HitRecord rec;
-    bool hit_anything = false;
-    float closest_so_far = 1e9f;
-    HitRecord temp_rec;
-
-    for (const auto& object : objects) {
-        if (object->hit(ray, 0.001f, closest_so_far, temp_rec)) {
-            hit_anything = true;
-            closest_so_far = temp_rec.t;
-            rec = temp_rec;
-        }
-    }
-
-    if (hit_anything) {
-        Vec3 material_color(
-            rec.material.color.r / 255.0f,
-            rec.material.color.g / 255.0f,
-            rec.material.color.b / 255.0f
-        );
-
-        float total_diffuse = 0.0f;
-        float total_specular = 0.0f;
-
-        for (const auto& light : lights) {
-            Vec3 light_dir = (light.position - rec.point).normalize();
-
-            Ray shadow_ray(rec.point + rec.normal * 0.001f, light_dir);
-
-            bool in_shadow = false;
-            HitRecord shadow_rec;
-            float distance_to_light = (light.position - rec.point).magnitude();
-
-            for (const auto& object : objects) {
-                if (object->hit(shadow_ray, 0.001f, distance_to_light, shadow_rec)) {
-                    in_shadow = true;
-                    break;
-                }
+            if (is_specular_reflection) {
+                ray_color *= Color(1.0f, 1.0f, 1.0f); 
+            } else {
+                ray_color *= material.color;
             }
 
-            if (!in_shadow) {
-                float diff = std::max(0.0f, rec.normal * light_dir);
-                total_diffuse += diff * light.intensity;
 
-                Vec3 view_dir = (ray.direction * -1.0f).normalize();
-                Vec3 halfway_dir = (light_dir + view_dir).normalize();
-
-                float spec_angle = std::max(0.0f, rec.normal * halfway_dir);
-
-                float shininess = 200.0f;
-                float specular_strength = 0.01f;
-
-                float spec = std::pow(spec_angle, shininess);
-                total_specular += spec * specular_strength * light.intensity;
-            }
+        } else {
+            // no hit
+            break;
         }
 
-        float direct_strength = rec.material.ambient + rec.material.diffuse * total_diffuse;
+    }
+    if ((ray_count == 0) && (!record.hit)) {
+        // never hit anything, return sky color
+        return Color(0,0,0);
+        Vec3 unit_direction = ray.direction.normalize();
+        float t = 0.5f * (unit_direction.y + 1.0f);
 
-        Vec3 direct_color = material_color * direct_strength;
-        Vec3 specular_color = Vec3(1.0f, 1.0f, 1.0f) * total_specular;
+        Color white(1.0f, 1.0f, 1.0f);
+        Color sky_blue(0.0f, 0.9f, 1.0f);
 
-        Vec3 color = direct_color + specular_color;
-
-        // Monte Carlo diffuse bounce
-        float indirect_strength = 0.5f;
-
-        Vec3 bounce_dir = random_in_hemisphere(rec.normal);
-        Ray bounce_ray(rec.point + rec.normal * 0.001f, bounce_dir);
-
-        Vec3 bounced_color = compute_ray_color(bounce_ray, depth + 1);
-
-        Vec3 indirect_color = multiply_color(material_color, bounced_color);
-        indirect_color = indirect_color * indirect_strength * rec.material.diffuse;
-
-        color = color + indirect_color;
-
-        // Mirror reflection, still optional
-        if (rec.material.reflectivity > 0.0f) {
-            Vec3 reflect_dir = Vec3::reflect(ray.direction.normalize(), rec.normal);
-            Ray reflected_ray(rec.point + rec.normal * 0.001f, reflect_dir);
-
-            Vec3 reflected_color = compute_ray_color(reflected_ray, depth + 1);
-
-            color = color * (1.0f - rec.material.reflectivity)
-                  + reflected_color * rec.material.reflectivity;
-        }
-
-        return color;
+        return white * (1.0f - t) + sky_blue * t;
     }
 
-    Vec3 unit_direction = ray.direction.normalize();
-    float t = 0.5f * (unit_direction.y + 1.0f);
-
-    Vec3 white(1.0f, 1.0f, 1.0f);
-    Vec3 sky_blue(0.0f, 0.9f, 1.0f);
-
-    return white * (1.0f - t) + sky_blue * t;
+    return incoming_light;
 }
+
+HitRecord Environment::calculate_ray_collision(const Ray &ray) {
+    HitRecord record;
+    for (const auto& object : objects) {
+        object->hit(ray, 0.0001f, record);
+    }
+    return record;
+
+}
+
 
 void Environment::render() {
     std::vector<std::thread> threads;
@@ -241,7 +114,7 @@ void Environment::render_thread(int pixel_offset) {
             // skip for multithreading
             if ((j * width + i) % thread_count != pixel_offset) continue;
 
-            Vec3 pixel_color(0, 0, 0);
+            Color pixel_color(0, 0, 0);
 
             // find convergence point
             Vec3 dir = camera.get_dir(float(i) / (width - 1), float(height - 1 - j) / (height - 1));
@@ -272,23 +145,18 @@ void Environment::render_thread(int pixel_offset) {
 
                 Ray final_ray = Ray(new_origin, focal_point - new_origin);
 
-                pixel_color += compute_ray_color(final_ray, 0);
+                Color ray_color = trace(final_ray, max_depth);
+                pixel_color.r += ray_color.r;
+                pixel_color.g += ray_color.g;
+                pixel_color.b += ray_color.b;
+
             }
 
 
             // Average the samples
             pixel_color /= (float)samples_per_pixel;
 
-            // // GAMMA CORRECTION: (gamma = 2.0 -> apply square root)
-            float r = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.x)));
-            float g = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.y)));
-            float b = std::sqrt(std::max(0.0f, std::min(1.0f, pixel_color.z)));
-            // float r = pixel_color.x;
-            // float g = pixel_color.y;
-            // float b = pixel_color.z;
-
-            Color final_color((int)(r * 255), (int)(g * 255), (int)(b * 255));
-            framebuffer[j * width + i] = final_color.to_int();
+            framebuffer[j * width + i] = pixel_color.to_int();
         }
     }
 }

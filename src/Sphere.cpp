@@ -3,7 +3,7 @@
 
 
 
-bool Sphere::hit(const Ray& ray, float t_min, float t_max, HitRecord& rec) const {
+bool Sphere::hit(const Ray& ray, float t_min, HitRecord& rec) const {
     Vec3 oc = ray.origin - center;
     float a = ray.direction * ray.direction;
     float b = 2.0f * (oc * ray.direction);
@@ -14,21 +14,23 @@ bool Sphere::hit(const Ray& ray, float t_min, float t_max, HitRecord& rec) const
     if (discriminant > 0.0f) {
         // Find the nearest root that lies in the acceptable range.
         float root = (-b - std::sqrt(discriminant)) / (2.0f * a);
-        if (root < t_max && root > t_min) {
+        if (root < rec.t && root > t_min) {
             rec.t = root;
             rec.point = ray.at(rec.t);
             rec.normal = (rec.point - center).normalize();
             rec.material = material;
+            rec.hit = true;
             return true;
         }
         
         // Second root check
         root = (-b + std::sqrt(discriminant)) / (2.0f * a);
-        if (root < t_max && root > t_min) {
+        if (root < rec.t && root > t_min) {
             rec.t = root;
             rec.point = ray.at(rec.t);
             rec.normal = (rec.point - center).normalize();
             rec.material = material;
+            rec.hit = true;
             return true;
         }
     }
