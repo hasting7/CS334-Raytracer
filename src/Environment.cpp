@@ -33,9 +33,10 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
     HitRecord record;
     double refractive_index = init_refractive_index;
     int ray_count = 0;
+    bool needs_direct_light_sample = true;
 
     for (; ray_count < max_depth; ray_count++) {
-
+        needs_direct_light_sample = true;
         // // 1. Do direct light sampling
         // std::shared_ptr<Object> obj = sample_light_source();
         // std::shared_ptr<Sphere> sphere = std::dynamic_pointer_cast<Sphere>(obj);
@@ -58,6 +59,7 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
             bool treat_as_glass = random_float() < material.transparency_probability;
 
             if (treat_as_glass) {
+                needs_direct_light_sample = false;
                 // determine n1 and n2
                 double n1 = refractive_index;
                 double n2 = material.refractive_index;
@@ -105,6 +107,10 @@ Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) 
                 } else {
                     ray_color *= material.color;
                 }
+            }
+
+            if (needs_direct_light_sample) {
+                // do it
             }
 
 

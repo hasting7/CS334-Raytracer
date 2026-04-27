@@ -16,6 +16,40 @@ static const int height = 600;
 Environment environment = Environment(width, height, 12);
 
 void initialize_scene() {
+        // Very matte / chalky materials
+    Material matte_white(Color(0.9f, 0.9f, 0.9f), 0.0f, 0.0f);
+    Material matte_black(Color(0.03f, 0.03f, 0.03f), 0.0f, 0.0f);
+    Material matte_gray(Color(0.45f, 0.45f, 0.45f), 0.0f, 0.0f);
+    Material matte_yellow(Color(1.0f, 0.85f, 0.15f), 0.0f, 0.0f);
+    Material matte_purple(Color(0.45f, 0.15f, 0.8f), 0.0f, 0.0f);
+    Material matte_red(Color(1.0f, 0.04f, 0.04f), 0.0f, 0.0f);
+
+
+    // Satin / soft plastic
+    Material satin_blue(Color(0.1f, 0.25f, 1.0f), 0.35f, 0.15f);
+    Material satin_orange(Color(1.0f, 0.35f, 0.05f), 0.35f, 0.15f);
+    Material satin_teal(Color(0.0f, 0.8f, 0.75f), 0.35f, 0.15f);
+    Material satin_cyan(Color(0.15f, 0.95f, 1.0f), 0.35f, 0.25f);
+
+    // Glossy colored plastic
+    Material glossy_red(Color(0.95f, 0.12f, 0.08f), 0.72f, 0.35f);
+    Material glossy_green(Color(0.12f, 0.92f, 0.18f), 0.72f, 0.35f);
+    Material glossy_blue(Color(0.08f, 0.22f, 0.95f), 0.72f, 0.35f);
+    Material glossy_pink(Color(0.95f, 0.22f, 0.62f), 0.72f, 0.35f);
+    Material glossy_purple(Color(0.42f, 0.14f, 0.78f), 0.72f, 0.35f);
+    Material glossy_lime(Color(0.35f, 0.95f, 0.12f), 0.72f, 0.35f);
+    Material glossy_white(Color(0.92f, 0.92f, 0.94f), 0.72f, 0.35f);
+    Material glossy_black(Color(0.02f, 0.02f, 0.025f), 0.9f, 0.8f);
+
+    // Metallic-ish materials
+    Material metallic_red(Color(1.0f, 0.05f, 0.05f), 0.5f, 0.85f);
+    Material gold(Color(1.0f, 0.72f, 0.25f), 0.95f, 0.85f);
+    Material copper(Color(0.95f, 0.45f, 0.2f), 0.9f, 0.75f);
+    Material chrome(Color(0.9f, 0.9f, 0.94f), 1.0f, 1.0f);
+
+    // Pure mirror
+    Material mirror(Color(1.0f, 1.0f, 1.0f), 1.0f, 1.0f);
+
     Material glass(Color(1.0f,1.0f,1.0f),0.3f,0.2f);
     glass.transparency_probability = 1;
     glass.refractive_index = 1.5f;

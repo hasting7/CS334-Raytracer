@@ -2,7 +2,6 @@
 #include <cmath>
 
 
-
 bool Sphere::hit(const Ray& ray, float t_min, HitRecord& rec) const {
     Vec3 oc = ray.origin - center;
     float a = ray.direction * ray.direction;
