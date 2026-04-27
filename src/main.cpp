@@ -8,6 +8,7 @@
 #include "Environment.h"
 #include "Vec3.h"
 #include "Sphere.h"
+#include "Plane.h"
 #include "Material.h"
 
 static const int width = 800;
@@ -48,7 +49,7 @@ void initialize_scene() {
     Material chrome(Color(0.9f, 0.9f, 0.94f), 1.0f, 1.0f);
 
     // Pure mirror
-    Material mirror(Color(1.0f, 1.0f, 1.0f), 1.0f, 1.0f);
+    Material mirror(Color(1.0f, 1.0f, 1.0f), 0.98f, 1.0f);
 
     Material glass(Color(1.0f,1.0f,1.0f),0.3f,0.2f);
     glass.transparency_probability = 1;
@@ -56,48 +57,38 @@ void initialize_scene() {
 
     Material light(Color(0.8f, 0.8f,0.8f), 0.1f, 1.0f);
     light.emission_color = Color(1.0f, 1.0f, 1.0f);
-    light.emission_strength = 1;
+    light.emission_strength = 3;
 
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(0.0f, -10000.0f, 0.0f), 10000.0f, glossy_white
+    Material floor_mat(Color(1.0f, 0.85f, 0.15f), 0.0f, 0.4f);
+    environment.add_object(std::make_shared<Plane>(
+        Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f,0.0f), glossy_white
+    ));
+
+    environment.add_object(std::make_shared<Plane>(
+        Vec3(0.0f, 0.0f, -4.0f), Vec3(0.0f,0.0f,-1.0f), chrome
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-900, 750, 0), 500.0f, light
-    ));
-
-
-    // glass.refractive_index = 10.0f;
-    // glass.transparency_probability = 0.95f;
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(0.0f, 0.75f, 0.0f), 0.75f, matte_red
+        Vec3(0, 2, 0), 2.0f, glossy_pink
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(3.5f, 1.8f, -2.3f), 1.8f, mirror
-    ));
-
-    glossy_lime.emission_color = glossy_lime.color;
-    glossy_lime.emission_strength = 2.5f;
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-1.4f, 0.7f, -2.8f), 0.7f, glossy_lime
+        Vec3(10, 5, 19), 5.0f, glossy_lime
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-4.5f, 1.9f, -6.0f), 1.9f, glossy_purple
+        Vec3(-12, 8, 19), 8.0f, satin_teal
     ));
 
-    glossy_purple.emission_color = glossy_purple.color;
-    glossy_purple.emission_strength = 1.2f;
+    glossy_green.emission_strength = 2;
+    glossy_green.emission_color = glossy_green.color;
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(1.2f, 0.35f, 1.3f), 0.35f, glossy_purple
+        Vec3(-15, 1, 15), 1.0f, glossy_green
     ));
 
-    glass.refractive_index = 2.6f;
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-1.5f, 0.65f, 1.3f), 0.65f, glass
+        Vec3(0, 1250, 750), 500.0f, light
     ));
-
 
 
 }
