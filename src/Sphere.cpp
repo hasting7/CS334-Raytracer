@@ -20,6 +20,7 @@ bool Sphere::hit(const Ray& ray, float t_min, HitRecord& rec) const {
             rec.normal = (rec.point - center).normalize();
             rec.material = material;
             rec.hit = true;
+            rec.front_face = rec.normal * ray.direction < 0.0f;
             return true;
         }
         
@@ -30,6 +31,7 @@ bool Sphere::hit(const Ray& ray, float t_min, HitRecord& rec) const {
             rec.point = ray.at(rec.t);
             rec.normal = (rec.point - center).normalize();
             rec.material = material;
+            rec.front_face = rec.normal * ray.direction < 0.0f;
             rec.hit = true;
             return true;
         }

@@ -62,3 +62,4 @@ Vec3 operator/(double value, const Vec3& v);
 
 Vec3 random_in_hemisphere(const Vec3& normal);
 Vec3 random_vec3();
+Vec3 apply_snells(const Vec3& incoming, const Vec3& normal, double n1, double n2);

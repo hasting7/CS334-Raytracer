@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 void Vec3::visualize() {
 	printf("Vec3 (x = %.2f, y = %.2f, z = %.2f)\n", x,y,z);
@@ -160,4 +161,35 @@ Vec3 random_in_hemisphere(const Vec3& normal) {
 
         return v;
     }
+}
+
+#include <algorithm>
+#include <cmath>
+
+Vec3 apply_snells(const Vec3& incoming, const Vec3& normal, double n1, double n2) {
+    Vec3 unit_incoming = incoming.normalize();
+    Vec3 unit_normal = normal.normalize();
+
+    // Make sure normal points against incoming ray
+    if ((unit_incoming * unit_normal) > 0.0f) {
+        unit_normal = -unit_normal;
+    }
+
+    float eta = static_cast<float>(n1 / n2);
+
+    float dot_val = (-unit_incoming) * unit_normal;
+    float cos_theta = std::min(dot_val, 1.0f);
+
+    float sin_theta_squared = 1.0f - cos_theta * cos_theta;
+
+    // Total internal reflection
+    if (eta * eta * sin_theta_squared > 1.0f) {
+        return unit_incoming.reflect(unit_normal).normalize();
+    }
+
+    Vec3 refracted_perpendicular = eta * (unit_incoming + cos_theta * unit_normal);
+
+    Vec3 refracted_parallel = -std::sqrt(std::fabs(1.0f - (refracted_perpendicular * refracted_perpendicular))) * unit_normal;
+
+    return (refracted_perpendicular + refracted_parallel).normalize();
 }

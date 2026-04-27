@@ -8,6 +8,9 @@ struct Material {
     float emission_strength = 0.0f;
     float reflectivity; // NEW: 0.0 is matte, 1.0 is a perfect mirror
     float specular_probability;
+    float refractive_index = 0;
+    float transparency_probability = 0.0f;
+
 
     Material() : color(Color(255, 255, 255)), reflectivity(0.0f), specular_probability(1.0f) {}
     

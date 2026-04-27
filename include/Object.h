@@ -9,12 +9,15 @@ struct HitRecord {
     Vec3 point;
     Vec3 normal;
     Material material;
+    bool front_face;
 };
 
 class Object {
 public:
+    Object(Material mat) : material(mat) {};
     virtual ~Object() = default;
     
+    Material material;
     // Abstract hit method for intersection logic
     virtual bool hit(const Ray& ray, float t_min, HitRecord& rec) const = 0;
 };

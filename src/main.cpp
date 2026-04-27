@@ -14,59 +14,100 @@ static const int height = 600;
 
 Environment environment = Environment(width, height, 12);
 
-// 
+
 
 void initialize_scene() {
-    // Mat params: Color, Ambient, Diffuse, Reflectivity
-    Material glossy_red(Color(1.0f, 0.0f, 0.0f), 0.2f, 0.4f);
-    Material glossy_green(Color(0.0f, 1.0f, 0.0f), 0.2f, 0.4f);
-    Material mirror(Color(1,1,1),1.0f,0.98f);
+    // Very matte / chalky materials
+    Material matte_white(Color(0.9f, 0.9f, 0.9f), 0.0f, 0.0f);
+    Material matte_black(Color(0.03f, 0.03f, 0.03f), 0.0f, 0.0f);
+    Material matte_gray(Color(0.45f, 0.45f, 0.45f), 0.0f, 0.0f);
+    Material matte_yellow(Color(1.0f, 0.85f, 0.15f), 0.0f, 0.0f);
+    Material matte_purple(Color(0.45f, 0.15f, 0.8f), 0.0f, 0.0f);
+    Material matte_red(Color(1.0f, 0.04f, 0.04f), 0.0f, 0.0f);
 
-    Material blue_light(Color(0,0,1.0f),0.3f,0.2f);
-    blue_light.emission_color = Color(0,0,1);
-    blue_light.emission_strength = 1.2f;
+    // Satin / soft plastic
+    Material satin_blue(Color(0.1f, 0.25f, 1.0f), 0.35f, 0.15f);
+    Material satin_orange(Color(1.0f, 0.35f, 0.05f), 0.35f, 0.15f);
+    Material satin_teal(Color(0.0f, 0.8f, 0.75f), 0.35f, 0.15f);
+    Material satin_cyan(Color(0.15f, 0.95f, 1.0f), 0.35f, 0.25f);
 
-    Material ground(Color(1.0f, 1.0f, 1.0f), 1.0f, 0.2f);
-    // mat_blue.emission_strength = 0.5f;
-    // mat_blue.emission_color = Color(0,0,1);
+    // Glossy colored plastic
+    float gloss_r = 0.72f;
+    float gloss_sp = 0.35f;
+    Material glossy_red(Color(0.95f, 0.12f, 0.08f), gloss_r, gloss_sp);
+    Material glossy_green(Color(0.12f, 0.92f, 0.18f), gloss_r, gloss_sp);
+    Material glossy_blue(Color(0.08f, 0.22f, 0.95f), gloss_r, gloss_sp);
+    Material glossy_pink(Color(0.95f, 0.22f, 0.62f), gloss_r, gloss_sp);
+    Material glossy_purple(Color(0.42f, 0.14f, 0.78f), gloss_r, gloss_sp);
+    Material glossy_lime(Color(0.35f, 0.95f, 0.12f), gloss_r, gloss_sp);
+    Material glossy_white(Color(0.92f, 0.92f, 0.94f), gloss_r, gloss_sp);
+
+    // Metallic-ish materials
+    Material metallic_red(Color(1.0f, 0.05f, 0.05f), 0.5f, 0.85f);
+    Material gold(Color(1.0f, 0.72f, 0.25f), 0.95f, 0.85f);
+    Material copper(Color(0.95f, 0.45f, 0.2f), 0.9f, 0.75f);
+    Material chrome(Color(0.9f, 0.9f, 0.94f), 1.0f, 1.0f);
+
+    // Pure mirror
+    Material mirror(Color(1.0f, 1.0f, 1.0f), 1.0f, 1.0f);
+
+    // Dark shiny material
+    Material glossy_black(Color(0.02f, 0.02f, 0.025f), 0.9f, 0.8f);
+
+    // Ground materials
+    Material rough_ground(Color(0.8f, 0.8f, 0.78f), 0.05f, 0.02f);
+    Material polished_ground(Color(0.72f, 0.72f, 0.74f), 0.05f, 0.02f);
+
+    Material glass(Color(1.0f,1.0f,1.0f),0.3f,0.2f);
+    glass.transparency_probability = 1;
+    glass.refractive_index = 1.5f;
 
     Material light(Color(0.8f, 0.8f,0.8f), 0.1f, 1.0f);
     light.emission_color = Color(1.0f, 1.0f, 1.0f);
     light.emission_strength = 1;
 
-    // 3 spheres at increasing depth from the camera
-    // Front sphere
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(8, 4, -8), 4.0f, glossy_green
+        Vec3(0.0f, -10000.0f, 0.0f), 10000.0f, glossy_white
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0, 3, -10), 3.0f, mirror
+        Vec3(-900, 750, 0), 500.0f, light
+    ));
+
+
+    // glass.refractive_index = 10.0f;
+    // glass.transparency_probability = 0.95f;
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0.0f, 0.75f, 0.0f), 0.75f, matte_red
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-8, 4, -8), 4.0f, glossy_red
+        Vec3(3.5f, 1.8f, -2.3f), 1.8f, mirror
+    ));
+
+    glossy_lime.emission_color = glossy_lime.color;
+    glossy_lime.emission_strength = 2.5f;
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(-1.4f, 0.7f, -2.8f), 0.7f, glossy_lime
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0, -1000.0f, 0), 1000.0f, ground
+        Vec3(-4.5f, 1.9f, -6.0f), 1.9f, glossy_purple
     ));
 
+    glossy_purple.emission_color = glossy_purple.color;
+    glossy_purple.emission_strength = 1.2f;
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0, 1.0f, -0.5f), 1.0f, blue_light
+        Vec3(1.2f, 0.35f, 1.3f), 0.35f, glossy_purple
     ));
 
+    glass.refractive_index = 2.6f;
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0, 1100, 0), 750.0f, light
+        Vec3(-1.5f, 0.65f, 1.3f), 0.65f, glass
     ));
 
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-100, 20, 0), 50.0f, light
-    ));
 
-    // Lights
-    environment.add_light(Light(Vec3(0.0f, 15.0f, 10.0f), 1.0f));
-    // environment.add_light(Light(Vec3(-6.0f, 4.0f, 0.0f), 0.4f));
+
 }
 
 int main(int argc, char* argv[]) {
