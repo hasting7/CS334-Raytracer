@@ -60,10 +60,10 @@ void initialize_scene() {
 
     Material floor_mat(Color(1.0f, 0.85f, 0.15f), 0.0f, 0.4f);
     environment.add_object(std::make_shared<Plane>(
-        Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f,0.0f), glossy_white
+        Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f,0.0f), satin_cyan
     ));
 
-    matte_red.refractive_index = 2.0f;
+    matte_red.refractive_index = 4.0f;
     matte_red.tint = Color(0.98f, 0.98f, 0.98f);
     matte_red.transmission = 1.0f;
     matte_red.glass_roughness = 0.0f;
@@ -86,21 +86,21 @@ void initialize_scene() {
         Vec3(9.0f, 3.0f, 0.0f), 3.0f, matte_red
     ));
 
-    light.emission_color = Color(0.05f, 0.98f,0.05f);
+    // light.emission_color = Color(0.05f, 0.98f,0.05f);
     environment.add_object(std::make_shared<Sphere>(
         Vec3(-9.0f, 6.52f, -3.52f), 0.5f, light
     ));
 
-    light.emission_color = Color(0.98f, 0.05f,0.05f);
+    // light.emission_color = Color(0.98f, 0.05f,0.05f);
     environment.add_object(std::make_shared<Sphere>(
         Vec3(-3.0f, 6.52f, -3.52f), 0.5f, light
     ));
-    light.emission_color = Color(0.05f, 0.05f,0.98f);
+    // light.emission_color = Color(0.05f, 0.05f,0.98f);
     environment.add_object(std::make_shared<Sphere>(
         Vec3(3.0f, 6.52f, -3.52f), 0.5f, light
     ));
 
-    light.emission_color = Color(1.0f, 1.0f, 1.0f);
+    // light.emission_color = Color(1.0f, 1.0f, 1.0f);
     environment.add_object(std::make_shared<Sphere>(
         Vec3(9.0f, 6.52f, -3.52f), 0.5f, light
     ));
