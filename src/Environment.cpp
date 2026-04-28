@@ -20,6 +20,12 @@ Environment::Environment(int width, int height, int thread_count) : width(width)
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
+    std::shared_ptr<Plane> plane = std::dynamic_pointer_cast<Plane>(object);
+    if (plane) {
+        plane->material.emission_strength = 0.0f;
+        printf("PLANE OBJ cannot emit light, setting emission_strength to 0.\n");
+    }
+
     objects.push_back(object);
     if (object->material.emission_strength != 0.0f) {
         light_sources.push_back(object);

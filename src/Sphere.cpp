@@ -39,3 +39,7 @@ bool Sphere::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 
     return true;
 }
+
+Vec3 Sphere::sample_point_on_surface(const Vec3 origin) const {
+    return Vec3();
+}

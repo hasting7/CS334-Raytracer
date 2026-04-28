@@ -20,4 +20,5 @@ public:
     Material material;
     // Abstract hit method for intersection logic
     virtual bool hit(const Ray& ray, double t_min, HitRecord& rec) const = 0;
+    virtual Vec3 sample_point_on_surface(const Vec3 origin) const = 0;
 };

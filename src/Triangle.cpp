@@ -47,3 +47,7 @@ bool Triangle::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 
     return true;
 }
+
+Vec3 Triangle::sample_point_on_surface(const Vec3 origin) const {
+    return Vec3();
+}

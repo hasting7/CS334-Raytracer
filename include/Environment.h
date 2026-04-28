@@ -6,6 +6,7 @@
 
 #include "Camera.h"
 #include "Object.h"
+#include "Plane.h"
 
 class Environment {
 public:

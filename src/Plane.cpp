@@ -25,3 +25,8 @@ bool Plane::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 
     return true;
 }
+
+Vec3 Plane::sample_point_on_surface(const Vec3 origin) const {
+    printf("ERROR if plane.sample_point_on_surface executes.\n");
+    return Vec3();
+}
