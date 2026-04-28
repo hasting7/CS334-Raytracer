@@ -50,6 +50,9 @@ public:
     // reflection
     Vec3 reflect(const Vec3& n) const;
 
+    // cross product
+    Vec3 cross(const Vec3& other) const;
+
     double x, y, z;
 private:
 };

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
+
 void Vec3::visualize() {
 	printf("Vec3 (x = %.2f, y = %.2f, z = %.2f)\n", x,y,z);
 }
@@ -163,8 +164,13 @@ Vec3 random_in_hemisphere(const Vec3& normal) {
     }
 }
 
-#include <algorithm>
-#include <cmath>
+Vec3 Vec3::cross(const Vec3& other) const {
+    return Vec3(
+        y * other.z - z * other.y,
+        z * other.x - x * other.z,
+        x * other.y - y * other.x
+    );
+}
 
 Vec3 apply_snells(const Vec3& incoming, const Vec3& normal, double n1, double n2) {
     Vec3 unit_incoming = incoming.normalize();

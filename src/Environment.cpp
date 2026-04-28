@@ -16,7 +16,7 @@ inline float random_float() {
 
 Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 4, 12), aspect_ratio, 12.0f, 0.1f); // 0.08f
+    this->camera = Camera(Vec3(0, 4, 12), aspect_ratio, 12.0f, 0.15f); // 0.08f
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {

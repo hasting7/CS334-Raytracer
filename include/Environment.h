@@ -34,6 +34,6 @@ private:
     int light_source_inc = 0;
     
     // Quality settings
-    int max_depth = 100;           // How many times a ray can bounce (Reflections)
-    int samples_per_pixel = 250;  // Anti-Aliasing (Multisampling)
+    int max_depth = 50;           // How many times a ray can bounce (Reflections)
+    int samples_per_pixel = 100;  // Anti-Aliasing (Multisampling)
 };
