@@ -1,6 +1,10 @@
 #define NOMINMAX // Fixes Windows macro conflict with std::min/max
 #include "Environment.h"
 #include "Color.h"
+#include "Vec3.h"
+#include "Ray.h"
+
+#include <random>
 
 #include <cmath>
 #include <algorithm>

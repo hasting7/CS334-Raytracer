@@ -12,8 +12,8 @@
 #include "Triangle.h"
 #include "Material.h"
 
-static const int width = 800;
-static const int height = 600;
+static const int width = 400;
+static const int height = 300;
 
 Environment environment = Environment(width, height, 12);
 
@@ -22,6 +22,9 @@ void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat);
 void initialize_scene() {
 }
 
+    // light ball — centered between them, slightly above and closer to camera
+    environment.add_object(std::make_unique<Sphere>(Vec3(-0.2f, 2.0f, -50.0f), light, 2.0f));
+}
 
 void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat) {
     Vec3 width_vec = bottom_right - bottom_left;
@@ -87,6 +90,8 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event e;
 
+    int frame_count = 0;
+
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) {
@@ -94,9 +99,13 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, texture, nullptr, nullptr);
-        SDL_RenderPresent(renderer);
+        if (frame_count % 1 == 0) {
+            SDL_RenderClear(renderer);
+            SDL_RenderTexture(renderer, texture, nullptr, nullptr);
+            SDL_RenderPresent(renderer);
+        }
+
+        frame_count++;
     }
 
     SDL_DestroyTexture(texture);
