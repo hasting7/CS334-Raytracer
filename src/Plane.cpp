@@ -1,18 +1,33 @@
-#include "Object.h"
-#include "Hit.h"
-#include "Ray.h"
+#include "Plane.h"
+#include <cmath>
 
+bool Plane::hit(const Ray& ray, double t_min, HitRecord& rec) const {
+    double denom = ray.direction * normal;
 
-/*
-Plane has:
-	- Vec3 position
-	- Material material
-	- Vec3 normal
-Ray has:
-	- Vec3 origin
-	- Vec3 dir
-*/
+    if (std::fabs(denom) < 1e-8) {
+        return false;
+    }
 
-Hit Plane::intersect(const Ray& ray) const {
-	return Hit();
+    double t = ((center - ray.origin) * normal) / denom;
+
+    if (t < t_min || (t > rec.t)) {
+        return false;
+    }
+
+    rec.t = t;
+    rec.point = ray.at(rec.t);
+    rec.material = material;
+    rec.hit = true;
+    rec.obj_id = id;
+
+    rec.front_face = denom < 0.0;
+
+    rec.normal = rec.front_face ? normal : -normal;
+
+    return true;
+}
+
+Vec3 Plane::sample_point_on_surface(const Vec3 origin) const {
+    printf("ERROR if plane.sample_point_on_surface executes.\n");
+    return Vec3();
 }

@@ -1,59 +1,50 @@
-#include "Object.h"
-#include "Hit.h"
-#include "Ray.h"
-
+#include "Sphere.h"
 #include <cmath>
-#include <utility>
 
+bool Sphere::hit(const Ray& ray, double t_min, HitRecord& rec) const {
+    Vec3 oc = ray.origin - center;
 
-/*
-Sphere has:
-	- Vec3 position
-	- Material material
-	- float radius
-Ray has:
-	- Vec3 origin
-	- Vec3 dir
-*/
+    double a = ray.direction * ray.direction;
+    double b = 2.0 * (oc * ray.direction);
+    double c = (oc * oc) - radius * radius;
 
-Hit Sphere::intersect(const Ray& ray) const {
-	Hit hit_data = Hit();
+    double discriminant = b * b - 4.0 * a * c;
 
-	// first use the root test
+    if (discriminant < 0.0) {
+        return false;
+    }
 
-	// quadratic formula values
-	float a = ray.dir * ray.dir;
-	float b = (ray.dir * -2.0f) * (position - ray.origin);
-	float c = ((position - ray.origin) * (position - ray.origin)) - (radius*radius);
+    double sqrt_d = std::sqrt(discriminant);
 
-	float inside = (b*b) - (4.0f*a*c);
+    double root = (-b - sqrt_d) / (2.0 * a);
 
-	if (inside < 0.0f) {
-		hit_data.hit = false;
-		return hit_data;
-	}
-	hit_data.hit = true;
+    if (root <= t_min || root >= rec.t) {
+        root = (-b + sqrt_d) / (2.0 * a);
 
-	// finish
-	float sol1 = (-b - sqrt(inside)) / (2.0f * a); // minus
-	float sol2 = (-b + sqrt(inside)) / (2.0f * a); // plus
+        if (root <= t_min || root >= rec.t) {
+            return false;
+        }
+    }
 
-	if (sol1 > sol2) std::swap(sol1, sol2);
+    rec.t = root;
+    rec.point = ray.at(rec.t);
 
-	float t;
-	if (sol1 > 0.0f) {
-	    t = sol1;
-	} else if (sol2 > 0.0f) {
-	    t = sol2;
-	} else {
-	    // both behind camera
-	    hit_data.hit = false;
-	    return hit_data;
-	}
-	hit_data.t = t;
-	hit_data.position = ray.at(t);
-	hit_data.material = material;
-	hit_data.normal = (hit_data.position - position).normalize();
+    Vec3 outward_normal = (rec.point - center).normalize();
 
-	return hit_data;
+    rec.front_face = (ray.direction * outward_normal) < 0.0;
+    rec.normal = rec.front_face ? outward_normal : -outward_normal;
+
+    rec.material = material;
+    rec.hit = true;
+    rec.obj_id = id;
+
+    return true;
+}
+
+Vec3 Sphere::sample_point_on_surface(const Vec3 origin) const {
+    Vec3 sphere_to_origin = (origin - center).normalize();
+
+    Vec3 dir = random_in_hemisphere(sphere_to_origin).normalize();
+
+    return center + dir * radius;
 }

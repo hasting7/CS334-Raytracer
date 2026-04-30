@@ -1,62 +1,126 @@
 #include "Color.h"
-#include <cstdint>
-#include <cassert>
-#include <cmath>
 #include <algorithm>
+#include <stdexcept>
 
-uint32_t Color::to_uint32() const {
-    // Reinhard tonemap
-    float tr = r / (r + 1.0f);
-    float tg = g / (g + 1.0f);
-    float tb = b / (b + 1.0f);
+Color::Color() : r(0.0f), g(0.0f), b(0.0f) {}
 
-    // gamma correction
-    tr = std::sqrt(tr);
-    tg = std::sqrt(tg);
-    tb = std::sqrt(tb);
+Color::Color(float r, float g, float b) : r(r), g(g), b(b) {}
 
-    uint8_t ri = (uint8_t)(std::min(std::max(tr, 0.0f), 1.0f) * 255.0f);
-    uint8_t gi = (uint8_t)(std::min(std::max(tg, 0.0f), 1.0f) * 255.0f);
-    uint8_t bi = (uint8_t)(std::min(std::max(tb, 0.0f), 1.0f) * 255.0f);
+uint32_t Color::to_int() const {
+    float cr = std::clamp(r, 0.0f, 1.0f);
+    float cg = std::clamp(g, 0.0f, 1.0f);
+    float cb = std::clamp(b, 0.0f, 1.0f);
 
-    return 0xFF000000 | (ri << 16) | (gi << 8) | bi;
+    cr = std::sqrt(cr);
+    cg = std::sqrt(cg);
+    cb = std::sqrt(cb);
+
+    return 0xFF000000
+        | ((static_cast<uint32_t>(cr * 255.999f) & 0xFF) << 16)
+        | ((static_cast<uint32_t>(cg * 255.999f) & 0xFF) << 8)
+        |  (static_cast<uint32_t>(cb * 255.999f) & 0xFF);
 }
 
-Color Color::to_color(uint32_t color_int) {
-    return Color(((color_int >> 16) & 0xFF) / 255.0f, ((color_int >> 8) & 0xFF) / 255.0f, (color_int & 0xFF) / 255.0f);
+
+Color Color::operator+(const Color& other) const {
+    return Color(r + other.r, g + other.g, b + other.b);
+}
+
+Color Color::operator-(const Color& other) const {
+    return Color(r - other.r, g - other.g, b - other.b);
+}
+
+Color Color::operator*(const Color& other) const {
+    return Color(r * other.r, g * other.g, b * other.b);
+}
+
+Color Color::operator/(const Color& other) const {
+    return Color(r / other.r, g / other.g, b / other.b);
+}
+
+
+Color Color::operator+(float value) const {
+    return Color(r + value, g + value, b + value);
+}
+
+Color Color::operator-(float value) const {
+    return Color(r - value, g - value, b - value);
 }
 
 Color Color::operator*(float value) const {
     return Color(r * value, g * value, b * value);
 }
 
-Color Color::operator+(const Color& other) const {
-    return Color(r + other.r, g + other.g, b + other.b);
+Color Color::operator/(float value) const {
+    return Color(r / value, g / value, b / value);
 }
 
 Color& Color::operator+=(const Color& other) {
-    this->r += other.r;
-    this->g += other.g;
-    this->b += other.b;
+    r += other.r;
+    g += other.g;
+    b += other.b;
     return *this;
 }
 
-Color operator*(float value, const Color& c) {
-    return c * value;
-}
-Color Color::operator*(const Color& other) const {
-    return Color(r * other.r, g * other.g, b * other.b);
+Color& Color::operator-=(const Color& other) {
+    r -= other.r;
+    g -= other.g;
+    b -= other.b;
+    return *this;
 }
 
-Color Color::operator/(float value) const {
-    assert(value != 0.0f && "COLOR DIVIDE BY ZERO ERROR");
-    return Color(this->r / value, this->g / value, this->b / value);
+Color& Color::operator*=(const Color& other) {
+    r *= other.r;
+    g *= other.g;
+    b *= other.b;
+    return *this;
+}
+
+Color& Color::operator/=(const Color& other) {
+    r /= other.r;
+    g /= other.g;
+    b /= other.b;
+    return *this;
+}
+
+
+Color& Color::operator+=(float value) {
+    r += value;
+    g += value;
+    b += value;
+    return *this;
+}
+
+Color& Color::operator-=(float value) {
+    r -= value;
+    g -= value;
+    b -= value;
+    return *this;
+}
+
+Color& Color::operator*=(float value) {
+    r *= value;
+    g *= value;
+    b *= value;
+    return *this;
 }
 
 Color& Color::operator/=(float value) {
-    assert(value != 0.0f && "COLOR DIVIDE BY ZERO ERROR");
-    this->r /= value;
-    this->g /= value;
-    this->b /= value;
+    r /= value;
+    g /= value;
+    b /= value;
     return *this;
+}
+
+
+Color operator+(float value, const Color& color) {
+    return Color(value + color.r, value + color.g, value + color.b);
+}
+
+Color operator-(float value, const Color& color) {
+    return Color(value - color.r, value - color.g, value - color.b);
+}
+
+Color operator*(float value, const Color& color) {
+    return Color(value * color.r, value * color.g, value * color.b);
 }

@@ -1,40 +1,30 @@
 #include "Camera.h"
-#include "Vec3.h"
-#include "Ray.h"
 
-#include <cmath>
+Camera::Camera() : Camera(Vec3(0, 0, 0), 800.0f / 600.0f, 1.0f, 0.01f) {}
 
-/*
-x: pointing right
-y: pointing up
-z: away from scren
-*/
+Camera::Camera(Vec3 position, float aspect_ratio, float focal_distance, float aperture) {
+    this->origin = position;
+    this->focal_distance = focal_distance;
+    this->aperture = aperture;
+    
+    float viewport_height = 2.0f;
+    float viewport_width = aspect_ratio * viewport_height;
 
-Camera::Camera(Vec3 position, Vec3 direction, float fov, int screen_width, int screen_height)
-    : position(position), dir(direction.normalize()), fov(fov),
-      screen_width(screen_width), screen_height(screen_height)
-{
-    distance_to_screen = 1.0f;
+    this->horizontal = Vec3(viewport_width, 0.0f, 0.0f);
+    this->vertical = Vec3(0.0f, viewport_height, 0.0f);
+    this->lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - Vec3(0.0f, 0.0f, 1.0f);
 
-    Vec3 world_up(0, 1, 0);
-
-    Vec3 forward = dir;
-    Vec3 right = Vec3::cross(forward, world_up).normalize();
-    Vec3 up = Vec3::cross(right, forward).normalize();
-
-    Vec3 viewport_center = position + forward * distance_to_screen;
-
-    float fov_radians = fov * 3.14159265358979323846f / 180.0f;
-    viewport_height = 2.0f * distance_to_screen * std::tan(fov_radians / 2.0f);
-    viewport_width = (static_cast<float>(screen_width) / static_cast<float>(screen_height)) * viewport_height;
-
-    dx = right * (viewport_width / static_cast<float>(screen_width));
-    dy = -up * (viewport_height / static_cast<float>(screen_height));
-
-    viewport_origin = viewport_center - right * (viewport_width / 2.0f) + up * (viewport_height / 2.0f);
 }
 
-Ray Camera::make_ray(int pix_x, int pix_y, float x_offset, float y_offset) const {
-	Vec3 viewport_pos = viewport_origin + (dx * (static_cast<float>(pix_x) + x_offset)) + (dy * (static_cast<float>(pix_y) + y_offset));
-	return Ray(position, (viewport_pos - position).normalize());
+Ray Camera::get_ray(float u, float v) const {
+    Vec3 direction = lower_left_corner + horizontal * u + vertical * v - origin;
+    return Ray(origin, direction.normalize());
+}
+
+Vec3 Camera::get_dir(float u, float v) const {
+    return lower_left_corner + horizontal * u + vertical * v - origin;
+}
+
+void Camera::focus_on_sphere(const Sphere obj) {
+    focal_distance = Vec3::distance(origin, obj.center);
 }

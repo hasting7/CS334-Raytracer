@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <cmath>
-#include <random>
+#include <algorithm>
 
 
 void Vec3::visualize() {
@@ -16,14 +16,14 @@ Vec3 Vec3::operator-() const {
 
 // ADDITION RULES
 
-Vec3& Vec3::operator+=(Vec3 &other) {
+Vec3& Vec3::operator+=(const Vec3 &other) { // FIXED: Added const
 	this->x += other.x;
 	this->y += other.y;
 	this->z += other.z;
 	return *this;
 }
 
-Vec3& Vec3::operator+=(float value) {
+Vec3& Vec3::operator+=(double value) {
 	this->x += value;
 	this->y += value;
 	this->z += value;
@@ -34,20 +34,20 @@ Vec3 Vec3::operator+(const Vec3 &other) const {
 	return Vec3(this->x + other.x, this->y + other.y, this->z + other.z);
 }
 
-Vec3 Vec3::operator+(float value) const {
+Vec3 Vec3::operator+(double value) const {
 	return Vec3(this->x + value, this->y + value, this->z + value);
 }
 
 // SUBTRACTION RULES
 
-Vec3& Vec3::operator-=(Vec3 &other) {
+Vec3& Vec3::operator-=(const Vec3 &other) { // FIXED: Added const
 	this->x -= other.x;
 	this->y -= other.y;
 	this->z -= other.z;
 	return *this;
 }
 
-Vec3& Vec3::operator-=(float value) {
+Vec3& Vec3::operator-=(double value) {
 	this->x -= value;
 	this->y -= value;
 	this->z -= value;
@@ -58,26 +58,29 @@ Vec3 Vec3::operator-(const Vec3 &other) const {
 	return Vec3(this->x - other.x, this->y - other.y, this->z - other.z);
 }
 
-Vec3 Vec3::operator-(float value) const {
+Vec3 Vec3::operator-(double value) const {
 	return Vec3(this->x - value, this->y - value, this->z - value);
 }
 
 // MULTIPLICATION RULES
 
-Vec3& Vec3::operator*=(float value) {
+Vec3& Vec3::operator*=(double value) {
 	this->x *= value;
 	this->y *= value;
 	this->z *= value;
 	return *this;
 }
 
-Vec3 Vec3::operator*(float value) const {
+Vec3 Vec3::operator*(double value) const {
 	return Vec3(this->x * value, this->y * value, this->z * value);
 }
 
+
+
+
 // DIVISION RULES
 
-Vec3& Vec3::operator/=(float value) {
+Vec3& Vec3::operator/=(double value) {
 	assert(value != 0.0f && "VEC3 DIVIDE BY ZERO ERROR");
 	this->x /= value;
 	this->y /= value;
@@ -85,52 +88,69 @@ Vec3& Vec3::operator/=(float value) {
 	return *this;
 }
 
-Vec3 Vec3::operator/(float value) const {
+Vec3 Vec3::operator/(double value) const {
 	assert(value != 0.0f && "VEC3 DIVIDE BY ZERO ERROR");
 	return Vec3(this->x / value, this->y / value, this->z / value);
 }
 
+Vec3 operator+(double value, const Vec3& v) {
+    return Vec3(value + v.x, value + v.y, value + v.z);
+}
+
+Vec3 operator-(double value, const Vec3& v) {
+    return Vec3(value - v.x, value - v.y, value - v.z);
+}
+
+Vec3 operator*(double value, const Vec3& v) {
+    return Vec3(value * v.x, value * v.y, value * v.z);
+}
+
+Vec3 operator/(double value, const Vec3& v) {
+    return Vec3(value / v.x, value / v.y, value / v.z);
+}
+
 // EXTRA PROPERTIES
 
-// vec3 * vec3
-float Vec3::operator*(const Vec3& other) const {
+double Vec3::operator*(const Vec3& other) const {
 	return this->x * other.x + this->y * other.y + this->z * other.z;
 }
 
-// vec3.magnitude
-float Vec3::magnitude() const {
+double Vec3::magnitude() const {
 	return std::sqrt(x * x + y * y + z * z);
 }
 
-// Vec3::distance(vec3 v1, vec3 v2)
-float Vec3::distance(const Vec3& a, const Vec3& b) {
+Vec3 Vec3::normalize() const {
+    double mag = magnitude();
+    assert(mag != 0.0f && "CANNOT NORMALIZE A ZERO VECTOR");
+    return *this / mag; 
+}
+
+double Vec3::distance(const Vec3& a, const Vec3& b) {
     return (a - b).magnitude();
 }
 
-Vec3 Vec3::cross(const Vec3& a, const Vec3& b) {
-	return Vec3((a.y * b.z) - (a.z * b.y), (a.x * b.z) - (a.z * b.x), (a.x * b.y) - (a.y * b.x));
+Vec3 Vec3::reflect(const Vec3& n) const {
+    // R = V - 2(V dot N)N
+    return *this - n * (2.0f * (*this * n));
 }
 
-Vec3 Vec3::normalize() const {
-	float mag = magnitude();
-	assert(mag != 0.0f && "CANNOT NORMALIZE ZERO VECTOR");
-	return *this / mag;
-}
-
-#include <random>
-#include <cmath>
-
-Vec3 random_hemisphere_dir(const Vec3& normal) {
+Vec3 random_vec3() {
     static thread_local std::mt19937 rng(std::random_device{}());
-    static thread_local std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    static thread_local std::uniform_real_distribution<double> dist(-1.0f, 1.0f);
+    return Vec3(dist(rng), dist(rng), dist(rng));
+}
 
+float random_float() {
+    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+Vec3 random_in_hemisphere(const Vec3& normal) {
+	Vec3 v;
     while (true) {
-        float x = dist(rng);
-        float y = dist(rng);
-        float z = dist(rng);
-
-        Vec3 v(x, y, z);
-        float len_sq = v.x * v.x + v.y * v.y + v.z * v.z;
+        v = random_vec3();
+        double len_sq = v.x * v.x + v.y * v.y + v.z * v.z;
 
         // reject zero vector and anything outside unit sphere
         if (len_sq <= 1e-8f || len_sq > 1.0f) {
@@ -138,7 +158,7 @@ Vec3 random_hemisphere_dir(const Vec3& normal) {
         }
 
         // normalize
-        float inv_len = 1.0f / std::sqrt(len_sq);
+        double inv_len = 1.0f / std::sqrt(len_sq);
         v = v * inv_len;
 
         // flip if it is on the wrong hemisphere
@@ -148,4 +168,40 @@ Vec3 random_hemisphere_dir(const Vec3& normal) {
 
         return v;
     }
+}
+
+Vec3 Vec3::cross(const Vec3& other) const {
+    return Vec3(
+        y * other.z - z * other.y,
+        z * other.x - x * other.z,
+        x * other.y - y * other.x
+    );
+}
+
+Vec3 apply_snells(const Vec3& incoming, const Vec3& normal, double n1, double n2) {
+    Vec3 unit_incoming = incoming.normalize();
+    Vec3 unit_normal = normal.normalize();
+
+    // Make sure normal points against incoming ray
+    if ((unit_incoming * unit_normal) > 0.0f) {
+        unit_normal = -unit_normal;
+    }
+
+    float eta = static_cast<float>(n1 / n2);
+
+    float dot_val = (-unit_incoming) * unit_normal;
+    float cos_theta = std::min(dot_val, 1.0f);
+
+    float sin_theta_squared = 1.0f - cos_theta * cos_theta;
+
+    // Total internal reflection
+    if (eta * eta * sin_theta_squared > 1.0f) {
+        return unit_incoming.reflect(unit_normal).normalize();
+    }
+
+    Vec3 refracted_perpendicular = eta * (unit_incoming + cos_theta * unit_normal);
+
+    Vec3 refracted_parallel = -std::sqrt(std::fabs(1.0f - (refracted_perpendicular * refracted_perpendicular))) * unit_normal;
+
+    return (refracted_perpendicular + refracted_parallel).normalize();
 }

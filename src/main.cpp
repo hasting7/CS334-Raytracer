@@ -2,40 +2,54 @@
 #include <SDL3/SDL_main.h>
 #include <vector>
 #include <cstdint>
+#include <memory>
+#include <ctime>
 
 #include "Environment.h"
 #include "Vec3.h"
-#include "Object.h"
+#include "Sphere.h"
+#include "Plane.h"
+#include "Triangle.h"
+#include "Material.h"
 
 static const int width = 400;
 static const int height = 300;
 
-Environment environment = Environment(width,height);
+Environment environment = Environment(width, height, 12);
+
+void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat);
 
 void initialize_scene() {
-    Material ball_a;
-    ball_a.color = Color(0.85f, 0.25f, 0.15f); // warm red
-
-    Material ball_b;
-    ball_b.color = Color(0.2f, 0.45f, 0.9f); // cool blue
-    ball_b.emission = Color(0.0f, 0.05f, 0.0f); 
-
-    Material light;
-    light.emission = Color(90.0f, 80.5f, 70.0f); // warm white, bright
-
-    // big red ball, sitting low
-    environment.add_object(std::make_unique<Sphere>(Vec3(-12.0f, -1.0f, 30.0f), ball_a, 10.0f));
-
-    // smaller blue ball, sitting higher
-    environment.add_object(std::make_unique<Sphere>(Vec3(10.0f, 1.5f, 28.0f), ball_b, 8.0f));
+}
 
     // light ball — centered between them, slightly above and closer to camera
     environment.add_object(std::make_unique<Sphere>(Vec3(-0.2f, 2.0f, -50.0f), light, 2.0f));
 }
 
+void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat) {
+    Vec3 width_vec = bottom_right - bottom_left;
+    float side_length = width_vec.magnitude();
+
+    Vec3 top_left = bottom_left + Vec3(0.0f, side_length, 0.0f);
+    Vec3 top_right = bottom_right + Vec3(0.0f, side_length, 0.0f);
+
+    environment.add_object(std::make_shared<Triangle>(
+        bottom_left,
+        bottom_right,
+        top_right,
+        mat
+    ));
+
+    environment.add_object(std::make_shared<Triangle>(
+        bottom_left,
+        top_right,
+        top_left,
+        mat
+    ));
+}
+
 int main(int argc, char* argv[]) {
     initialize_scene();
-
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
@@ -58,15 +72,20 @@ int main(int argc, char* argv[]) {
         height
     );
 
-    if (!texture) {
-        SDL_Log("CreateTexture failed: %s", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
 
-    std::vector<uint32_t> framebuffer(width * height, 0xFF000000); // opaque black
+
+    // Render the scene exactly ONCE. (With AA and reflections, this takes a few seconds)
+    time_t start_time, end_time;
+    time(&start_time);
+    printf("Rendering...\n");
+    environment.render();
+    time(&end_time);
+    double elapsed_time = difftime(end_time, start_time);
+    printf("Render complete! (%.2f seconds)\n", elapsed_time);
+    
+    if (!SDL_UpdateTexture(texture, nullptr, environment.framebuffer.data(), width * sizeof(uint32_t))) {
+        SDL_Log("UpdateTexture failed: %s", SDL_GetError());
+    }
 
     bool running = true;
     SDL_Event e;
@@ -78,12 +97,6 @@ int main(int argc, char* argv[]) {
             if (e.type == SDL_EVENT_QUIT) {
                 running = false;
             }
-        }
-        environment.render(framebuffer);
-
-        if (!SDL_UpdateTexture(texture, nullptr, framebuffer.data(), width * sizeof(uint32_t))) {
-            SDL_Log("UpdateTexture failed: %s", SDL_GetError());
-            break;
         }
 
         if (frame_count % 1 == 0) {

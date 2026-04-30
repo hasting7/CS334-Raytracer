@@ -1,38 +1,28 @@
 #pragma once
 
-#include "Vec3.h"
 #include "Ray.h"
 #include "Material.h"
-#include "Hit.h"
 
+struct HitRecord {
+    bool hit = false;
+    double t = 1e9f;
+    Vec3 point;
+    Vec3 normal;
+    Material material;
+    bool front_face;
+    int obj_id;
+};
 
 class Object {
-public:
-	Object(const Vec3& position, const Material& material) : position(position), material(material) {};
-	virtual ~Object() = default;
-	virtual Hit intersect(const Ray& ray) const = 0;
-	Vec3 position;
-	Material material;
 private:
-
-};
-
-class Sphere : public Object {
+    inline static int id_iterator = 0;
 public:
-	Sphere(const Vec3& position, const Material& material, float radius) : Object(position, material), radius(radius) {};
-
-	Hit intersect(const Ray& ray) const override;
-private:
-	float radius;
+    Object(Material mat) : material(mat), id(Object::id_iterator++) {};
+    virtual ~Object() = default;
+    
+    Material material;
+    int id;
+    // Abstract hit method for intersection logic
+    virtual bool hit(const Ray& ray, double t_min, HitRecord& rec) const = 0;
+    virtual Vec3 sample_point_on_surface(const Vec3 origin) const = 0;
 };
-
-
-class Plane : public Object {
-public:
-	Plane(const Vec3& position, const Material& material, const Vec3& normal) : Object(position, material), normal(normal) {};
-
-	Hit intersect(const Ray& ray) const override;
-private:
-	Vec3 normal;
-};
-

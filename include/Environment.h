@@ -1,30 +1,40 @@
 #pragma once
 
-#include "Camera.h"
-#include "Ray.h"
-#include "Color.h"
-#include "Object.h"
 #include <vector>
-#include <random>
+#include <memory>
+#include <cstdint>
+
+#include "Camera.h"
+#include "Object.h"
+#include "Plane.h"
 
 class Environment {
 public:
-    Environment(int width, int height);
-    void render(std::vector<uint32_t> &framebuffer);
-    Color shoot_ray(const Ray& ray, int depth, int branch, bool from_camera);
+    Environment(int width, int height, int threads);
+    
+    void add_object(std::shared_ptr<Object> object);
+    void render();
 
-    void add_object(std::unique_ptr<Object> object);
+    std::vector<uint32_t> framebuffer;
+
+    
 private:
-	std::vector<std::unique_ptr<Object>> objects;
-	Camera camera;
-	int width;
-	int height;
-	int ray_depth;
-	int rays_per_pixel;
-	std::random_device rd; 
-	std::mt19937_64 gen;
-	std::uniform_real_distribution<float> uniform_dist; 
-	std::vector<Color> color_history;
-	float alpha;
-	int frame_count;
+    void render_thread(int pixel_offset);
+    // Returns a Vec3 representing floating-point RGB (0.0 to 1.0)
+    // Vec3 compute_ray_color(const Ray& ray, int depth);
+    Color trace(Ray &ray, int max_depth, double init_refractive_index);
+    std::shared_ptr<Object> sample_light_source();
+    HitRecord calculate_ray_collision(const Ray &ray);
+
+    Camera camera;
+    int width;
+    int height;
+    int thread_count;
+    std::vector<std::shared_ptr<Object>> objects;
+    std::vector<std::shared_ptr<Object>> light_sources;
+    int light_source_inc = 0;
+    
+    // Quality settings
+    int max_depth = 100;           // How many times a ray can bounce (Reflections)
+    int samples_per_pixel = 15;  // Anti-Aliasing (Multisampling)
 };

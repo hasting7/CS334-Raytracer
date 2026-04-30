@@ -2,26 +2,22 @@
 
 #include "Vec3.h"
 #include "Ray.h"
-
+#include "Sphere.h"
 
 class Camera {
 public:
-    Camera() {};
-    Camera(Vec3 position, Vec3 direction, float fov, int screen_width, int screen_height);
+    Camera();
+    Camera(Vec3 position, float aspect_ratio, float focal_distance, float aperture);
 
-    Ray make_ray(int pix_x, int pix_y, float x_offset, float y_offset) const;
-
-    Vec3 position;
-    Vec3 dir;
-    float fov;
-    float distance_to_screen;
+    void focus_on_sphere(const Sphere obj);
+    Ray get_ray(float u, float v) const;
+    Vec3 get_dir(float u, float v) const;
+    
+    float focal_distance;
+    float aperture;
+    Vec3 origin;
 private:
-    int screen_width;
-    int screen_height;
-    float viewport_width;
-    float viewport_height;
-
-    Vec3 dx;
-    Vec3 dy;
-    Vec3 viewport_origin;
+    Vec3 lower_left_corner;
+    Vec3 horizontal;
+    Vec3 vertical;
 };

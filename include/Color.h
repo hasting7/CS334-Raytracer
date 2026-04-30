@@ -2,22 +2,41 @@
 
 #include <cstdint>
 
-struct Color {
-    Color() : Color(0.0f, 0.0f, 0.0f) {}
-    Color(float r, float g, float b) : r(r), g(g), b(b) {}
-
+class Color {
+public:
     float r, g, b;
 
-    uint32_t to_uint32() const;
-    static Color to_color(uint32_t color_int);
+    Color();
+    Color(float r, float g, float b);
 
-    Color operator*(float value) const;
-    Color operator*(const Color& other) const;
-    Color operator/(float value) const;
-    Color& operator/=(float other);
+    uint32_t to_int() const;
+
+    // Color with Color
     Color operator+(const Color& other) const;
-    Color& operator+=(const Color& other);
+    Color operator-(const Color& other) const;
+    Color operator*(const Color& other) const;   // component-wise multiply
+    Color operator/(const Color& other) const;   // component-wise divide
 
+    // Color with float
+    Color operator+(float value) const;
+    Color operator-(float value) const;
+    Color operator*(float value) const;
+    Color operator/(float value) const;
+
+    // Compound assignment with Color
+    Color& operator+=(const Color& other);
+    Color& operator-=(const Color& other);
+    Color& operator*=(const Color& other);
+    Color& operator/=(const Color& other);
+
+    // Compound assignment with float
+    Color& operator+=(float value);
+    Color& operator-=(float value);
+    Color& operator*=(float value);
+    Color& operator/=(float value);
 };
 
-Color operator*(float value, const Color& c);
+// float on left side
+Color operator+(float value, const Color& color);
+Color operator-(float value, const Color& color);
+Color operator*(float value, const Color& color);
