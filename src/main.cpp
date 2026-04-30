@@ -12,19 +12,38 @@
 #include "Triangle.h"
 #include "Material.h"
 
-static const int width = 400;
-static const int height = 300;
+// ARGUMENTS
 
-Environment environment = Environment(width, height, 12);
+static const int   width = 400;
+static const int   height = 300;
+static const int   threads = 12;
+static const int   max_ray_depth = 100;
+static const int   rays_per_pixel = 100;
+static const float aperture = 0.08;
+static const float focal_distance = 12;
+
+Environment environment = Environment(width, height, threads, max_ray_depth, rays_per_pixel);
 
 void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat);
 
 void initialize_scene() {
+    // set camera settings
+    environment.update_camera_settings(aperture, focal_distance);
+
+
+    Material floor(Color(0.9f,0.9f,0.9f), 1.0f, 0.1f);
+    environment.add_object(std::make_shared<Plane>(
+        Vec3(0,0,0), Vec3(0,1,0), floor
+    ));
+
+    Material light(Color(0.9f,0.05f,0.05f), 0.0f, 0.0f);
+    light.emission_strength = 0.9;
+    light.emission_color = Color(0.9f, 0.05f, 0.05f);
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0,0.5f,0), 0.5f, light
+    ));
 }
 
-    // light ball — centered between them, slightly above and closer to camera
-    environment.add_object(std::make_unique<Sphere>(Vec3(-0.2f, 2.0f, -50.0f), light, 2.0f));
-}
 
 void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat) {
     Vec3 width_vec = bottom_right - bottom_left;

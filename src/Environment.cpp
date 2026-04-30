@@ -13,9 +13,12 @@
 
 // Helper to generate random numbers for Anti-Aliasing
 
-Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
+Environment::Environment(int width, int height, int thread_count, int max_depth, int samples_per_pixel) : 
+    width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count),
+    max_depth(max_depth), samples_per_pixel(samples_per_pixel)
+{
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 5, 8), aspect_ratio, 16.0f, 0.25f); // 0.08f
+    this->camera = Camera(Vec3(0, 5, 8), aspect_ratio, 0.0f, 0.0f);
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
@@ -273,4 +276,13 @@ void Environment::render_thread(int pixel_offset) {
             framebuffer[j * width + i] = pixel_color.to_int();
         }
     }
+}
+
+void Environment::update_camera_position(Vec3 position) {
+    camera.origin = position;
+}
+
+void Environment::update_camera_settings(float aperture, float focal_distance) {
+    camera.aperture = aperture;
+    camera.focal_distance = focal_distance;
 }

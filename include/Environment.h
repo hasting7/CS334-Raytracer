@@ -10,9 +10,11 @@
 
 class Environment {
 public:
-    Environment(int width, int height, int threads);
+    Environment(int width, int height, int threads, int max_depth, int samples_per_pixel);
     
     void add_object(std::shared_ptr<Object> object);
+    void update_camera_position(Vec3 position);
+    void update_camera_settings(float aperture, float focal_distance);
     void render();
 
     std::vector<uint32_t> framebuffer;
@@ -35,6 +37,6 @@ private:
     int light_source_inc = 0;
     
     // Quality settings
-    int max_depth = 100;           // How many times a ray can bounce (Reflections)
-    int samples_per_pixel = 15;  // Anti-Aliasing (Multisampling)
+    int max_depth;
+    int samples_per_pixel;
 };
