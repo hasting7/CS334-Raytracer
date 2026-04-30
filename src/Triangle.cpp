@@ -36,6 +36,7 @@ bool Triangle::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 
     rec.t = t;
     rec.point = ray.at(t);
+    rec.obj_id = id;
 
     Vec3 outward_normal = edge1.cross(edge2).normalize();
 
@@ -49,5 +50,18 @@ bool Triangle::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 }
 
 Vec3 Triangle::sample_point_on_surface(const Vec3 origin) const {
-    return Vec3();
+    (void)origin;
+
+    float u = random_float();
+    float v = random_float();
+
+    if (u + v > 1.0f) {
+        u = 1.0f - u;
+        v = 1.0f - v;
+    }
+
+    Vec3 edge1 = v1 - v0;
+    Vec3 edge2 = v2 - v0;
+
+    return v0 + edge1 * u + edge2 * v;
 }

@@ -18,6 +18,7 @@ bool Plane::hit(const Ray& ray, double t_min, HitRecord& rec) const {
     rec.point = ray.at(rec.t);
     rec.material = material;
     rec.hit = true;
+    rec.obj_id = id;
 
     rec.front_face = denom < 0.0;
 

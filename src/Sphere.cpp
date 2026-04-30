@@ -36,10 +36,15 @@ bool Sphere::hit(const Ray& ray, double t_min, HitRecord& rec) const {
 
     rec.material = material;
     rec.hit = true;
+    rec.obj_id = id;
 
     return true;
 }
 
 Vec3 Sphere::sample_point_on_surface(const Vec3 origin) const {
-    return Vec3();
+    Vec3 sphere_to_origin = (origin - center).normalize();
+
+    Vec3 dir = random_in_hemisphere(sphere_to_origin).normalize();
+
+    return center + dir * radius;
 }

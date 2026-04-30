@@ -8,20 +8,15 @@
 #include <thread>
 
 // Helper to generate random numbers for Anti-Aliasing
-inline float random_float() {
-    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
-    static std::mt19937 generator;
-    return distribution(generator);
-}
 
 Environment::Environment(int width, int height, int thread_count) : width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count) {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 4, 12), aspect_ratio, 12.0f, 0.15f); // 0.08f
+    this->camera = Camera(Vec3(0, 5, 8), aspect_ratio, 16.0f, 0.25f); // 0.08f
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
     std::shared_ptr<Plane> plane = std::dynamic_pointer_cast<Plane>(object);
-    if (plane) {
+    if (plane && plane->material.emission_strength > 0.0f) {
         plane->material.emission_strength = 0.0f;
         printf("PLANE OBJ cannot emit light, setting emission_strength to 0.\n");
     }
@@ -33,128 +28,169 @@ void Environment::add_object(std::shared_ptr<Object> object) {
 }
 
 
-Color Environment::trace(Ray &ray, int max_depth, double init_refractive_index) {
-    Color incoming_light = Color(0.0f,0.0f,0.0f);
-    Color ray_color = Color(1.0f,1.0f,1.0f);
-    HitRecord record;
+Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) {
+    Color incoming_light(0.0f, 0.0f, 0.0f);
+    Color ray_color(1.0f, 1.0f, 1.0f);
+    Vec3 incoming_dir = ray.direction;
+
     double refractive_index = init_refractive_index;
-    int ray_count = 0;
-    bool needs_direct_light_sample = true;
 
-    for (; ray_count < max_depth; ray_count++) {
-        // terminate early if no more light can do anything to scene
-        float throughput_strength = std::max(ray_color.r, std::max(ray_color.g, ray_color.b));
+    for (int ray_count = 0; ray_count < max_depth; ray_count++) {
+        incoming_dir = ray.direction;
+        HitRecord record = calculate_ray_collision(ray);
 
-        if (throughput_strength < 0.001f) {
+        if (!record.hit) {
+            // maybe add natural lighting later
             break;
         }
 
+        Material material = record.material;
 
-        needs_direct_light_sample = true;
-        // // 1. Do direct light sampling
-        // std::shared_ptr<Object> obj = sample_light_source();
-        // std::shared_ptr<Sphere> sphere = std::dynamic_pointer_cast<Sphere>(obj);
-        // // these are all sphers but maybe in the future will be more
+        // If we hit a light, collect its emission and stop.
+        if (material.emission_strength > 0.0f) {
+            Color emitted_light =
+                material.emission_color * material.emission_strength;
 
-        // Vec3 sphere_to_position = (ray.origin - sphere->center);
-        // Vec3 position_on_light = random_in_hemisphere(sphere_to_position);
+            incoming_light += emitted_light * ray_color;
+            break;
+        }
 
-        // Ray direct_calc_ray = Ray(ray.origin, position_on_light - ray.origin);
-        // record = calculate_ray_collision(direct_calc_ray);
-        // if (record.hit) {
+        // Glass branch
+        if (material.transmission > 0.0f) {
+            double n1 = refractive_index;
 
-        // }
+            double n2 = record.front_face
+                ? material.refractive_index
+                : init_refractive_index;
 
-        // do random light sampling
-        record = calculate_ray_collision(ray);
-        if (record.hit) {
-            Material material = record.material;
+            Vec3 refracted_dir = apply_snells(
+                ray.direction.normalize(),
+                record.normal,
+                n1,
+                n2
+            ).normalize();
 
-            if (material.transmission > 0.0f) {
-                needs_direct_light_sample = false;
-                // determine n1 and n2
-                double n1 = refractive_index;
-                double n2 = material.refractive_index;
-
-                // we hit back face
-                if (!record.front_face) {
-                    n2 = init_refractive_index;
-
-                }
-
-                // calculate outgoing dir
-                ray.origin = record.point;
-                Vec3 refracted_dir = apply_snells(ray.direction, record.normal, n1, n2);
-
-                // cloudyness
-                if (material.glass_roughness > 0.0f) {
-                    refracted_dir = (
-                        refracted_dir +
-                        random_in_hemisphere(refracted_dir) * material.glass_roughness
-                    ).normalize();
-                }
-
-                ray.direction = refracted_dir;
-
-                // update refractive index to the new medium
-                refractive_index = n2;
-
-                if (!record.front_face) {
-                    ray_color *= material.tint;
-                }
-            } else {
-
-                Vec3 next_dir, inital_diffusion_vec;
-                ray.origin = record.point;
-
-                inital_diffusion_vec = (record.normal + random_vec3()).normalize();
-
-                bool is_specular_reflection = random_float() < material.specular_probability;
-
-                // check if object is reflective or not
-                if (is_specular_reflection) {
-                    ray.direction = (1.0f - material.reflectivity) * inital_diffusion_vec + material.reflectivity * ray.direction.reflect(record.normal);
-                } else {
-                    // not reflective
-                    ray.direction = inital_diffusion_vec;
-                }
-                // determine new incoming light
-                Color emitted_light = material.emission_color * material.emission_strength;
-                // consider light strength
-                // add light, and tint it based on all the light we have seen so far
-                incoming_light += emitted_light * ray_color;
-
-                if (is_specular_reflection) {
-                    ray_color *= material.specular_color; 
-                } else {
-                    ray_color *= material.color;
-                }
+            if (material.glass_roughness > 0.0f) {
+                refracted_dir = (
+                    refracted_dir +
+                    random_in_hemisphere(refracted_dir) * material.glass_roughness
+                ).normalize();
             }
 
-            if (needs_direct_light_sample) {
-                // do it
+            ray.origin = record.point + refracted_dir * 0.001f;
+            ray.direction = refracted_dir;
+
+            refractive_index = n2;
+
+            if (!record.front_face) {
+                ray_color *= material.tint;
             }
 
+            continue;
+        }
 
+        // Direct light sample for diffuse/non-glass surface
+        std::shared_ptr<Object> light_obj = sample_light_source();
+
+        if (light_obj) {
+            Vec3 point_on_light = light_obj->sample_point_on_surface(record.point);
+
+            Vec3 to_light = point_on_light - record.point;
+            float distance_to_light = to_light.magnitude();
+            Vec3 light_dir = to_light.normalize();
+
+            float n_dot_l = std::max(
+                0.0f,
+                static_cast<float>(record.normal * light_dir)
+            );
+
+            if (n_dot_l > 0.0f) {
+                Ray direct_calc_ray(
+                    record.point + record.normal * 0.001f,
+                    light_dir
+                );
+
+                HitRecord light_hit = calculate_ray_collision(direct_calc_ray);
+
+                if (light_hit.hit && light_hit.obj_id == light_obj->id) {
+                    Color emitted_light =
+                        light_hit.material.emission_color *
+                        light_hit.material.emission_strength;
+
+                    // Diffuse direct lighting
+                    float diffuse_weight = 1.0f - material.specular_probability;
+
+                    Color diffuse_direct =
+                        emitted_light *
+                        material.color *
+                        n_dot_l *
+                        diffuse_weight;
+
+                    // Specular direct lighting
+                    float specular_weight = material.specular_probability;
+                    Color specular_direct(0.0f, 0.0f, 0.0f);
+
+                    if (specular_weight > 0.0f) {
+                        // View direction: from hit point back toward where the ray came from
+                        Vec3 view_dir = (-incoming_dir).normalize();
+
+                        // Perfect reflected direction of incoming light
+                        Vec3 reflected_light_dir = (-light_dir).reflect(record.normal).normalize();
+
+                        // How close is the view direction to the perfect reflection?
+                        float alignment = std::max(
+                            0.0f,
+                            static_cast<float>(reflected_light_dir * view_dir)
+                        );
+
+                        // reflectivity controls how tight the highlight is:
+                        // 0.0 -> broad / loose
+                        // 1.0 -> extremely tight / almost mirror
+                        float min_alignment = material.reflectivity;
+
+                        float spec_amount = 0.0f;
+
+                        if (min_alignment >= 0.999f) {
+                            spec_amount = (alignment > 0.999f) ? 1.0f : 0.0f;
+                        } else if (alignment > min_alignment) {
+                            spec_amount = (alignment - min_alignment) / (1.0f - min_alignment);
+                        }
+
+                        specular_direct =
+                            emitted_light *
+                            material.specular_color *
+                            spec_amount *
+                            specular_weight;
+                    }
+
+                    Color direct_light = diffuse_direct + specular_direct;
+
+                    // Optional physically-based falloff:
+                    // direct_light /= (distance_to_light * distance_to_light);
+
+                    incoming_light += direct_light * ray_color;
+                }
+            }
+        }
+        // Normal diffuse/specular bounce
+        Vec3 diffuse_dir = random_in_hemisphere(record.normal).normalize();
+        Vec3 reflect_dir = ray.direction.normalize().reflect(record.normal).normalize();
+
+        bool is_specular_reflection = random_float() < material.specular_probability;
+
+        if (is_specular_reflection) {
+            ray.direction = (
+                diffuse_dir * (1.0f - material.reflectivity) +
+                reflect_dir * material.reflectivity
+            ).normalize();
+
+            ray_color *= material.specular_color;
         } else {
-            Color background_top(0.02f, 0.02f, 0.04f);
-            Color background_bottom(0.10f, 0.10f, 0.12f);
-
-            Vec3 unit_dir = ray.direction.normalize();
-            double t = 0.5f * (unit_dir.y + 1.0f);
-            incoming_light += background_bottom * (1.0f - t) + background_top * t;
-            // no hit
-            break;
+            ray.direction = diffuse_dir;
+            ray_color *= material.color;
         }
 
-    }
-    if ((ray_count == 0) && (!record.hit)) {
-        Color background_top(0.02f, 0.02f, 0.04f);
-        Color background_bottom(0.10f, 0.10f, 0.12f);
-
-        Vec3 unit_dir = ray.direction.normalize();
-        double t = 0.5f * (unit_dir.y + 1.0f);
-        incoming_light += background_bottom * (1.0f - t) + background_top * t;
+        ray.origin = record.point + ray.direction * 0.001f;
     }
 
     return incoming_light;

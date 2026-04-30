@@ -20,27 +20,6 @@ Environment environment = Environment(width, height, 12);
 void make_square(Vec3 bottom_left, Vec3 bottom_right, Material mat);
 
 void initialize_scene() {
-    Material light(Color(0.8f, 0.8f,0.8f), 0.1f, 1.0f);
-    light.emission_color = Color(1.0f, 1.0f, 1.0f);
-    light.emission_strength = 1.00f;
-
-    Material simple_gray(Color(0.6f, 0.6f, 0.6f), 0.0f, 0.0f);
-    environment.add_object(std::make_shared<Plane>(
-        Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f,0.0f), simple_gray
-    ));
-
-    Material simple_red(Color(0.98f, 0.1f, 0.1f), 0.0f, 0.0f);
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(4.0f, 1.5f, 0.0f), 1.5f, simple_red
-    ));
-
-    make_square(
-        Vec3(-5.0f, 0, -2.0f),
-        Vec3(-5.0f, 0,  2.0f),
-        light
-    );
-
-
 }
 
 
