@@ -28,3 +28,12 @@ Vec3 Camera::get_dir(float u, float v) const {
 void Camera::focus_on_sphere(const Sphere obj) {
     focal_distance = Vec3::distance(origin, obj.center);
 }
+
+void Camera::update_position(const Vec3 position) {
+    origin = position;
+    this->lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - Vec3(0.0f, 0.0f, 1.0f);
+}
+
+Vec3 Camera::get_position() const {
+    return origin;
+}

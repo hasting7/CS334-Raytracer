@@ -13,7 +13,7 @@ public:
     Environment(int width, int height, int threads, int max_depth, int samples_per_pixel);
     
     void add_object(std::shared_ptr<Object> object);
-    void update_camera_position(Vec3 position);
+    void update_camera_position(const Vec3 position);
     void update_camera_settings(float aperture, float focal_distance);
     void render();
 

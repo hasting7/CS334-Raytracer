@@ -18,7 +18,7 @@ Environment::Environment(int width, int height, int thread_count, int max_depth,
     max_depth(max_depth), samples_per_pixel(samples_per_pixel)
 {
     float aspect_ratio = (float)width / height;
-    this->camera = Camera(Vec3(0, 5, 8), aspect_ratio, 0.0f, 0.0f);
+    this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 0.0f, 0.0f);
 }
 
 void Environment::add_object(std::shared_ptr<Object> object) {
@@ -242,7 +242,7 @@ void Environment::render_thread(int pixel_offset) {
 
                 Vec3 dir = camera.get_dir(u, v).normalize();
 
-                Vec3 focal_point = camera.origin + dir * camera.focal_distance;
+                Vec3 focal_point = camera.get_position() + dir * camera.focal_distance;
                 
                 // Ray ray = camera.get_ray(u, v);
 
@@ -261,7 +261,7 @@ void Environment::render_thread(int pixel_offset) {
                 float dy = std::sin(theta) * r;
 
                 // in the future maybe make dx and dy relative to camera coords rather than just x, y directly
-                Vec3 new_origin = camera.origin + Vec3(dx, dy, 0);
+                Vec3 new_origin = camera.get_position() + Vec3(dx, dy, 0);
 
                 Ray final_ray = Ray(new_origin, focal_point - new_origin);
 
@@ -278,8 +278,8 @@ void Environment::render_thread(int pixel_offset) {
     }
 }
 
-void Environment::update_camera_position(Vec3 position) {
-    camera.origin = position;
+void Environment::update_camera_position(const Vec3 position) {
+    camera.update_position(position);
 }
 
 void Environment::update_camera_settings(float aperture, float focal_distance) {
