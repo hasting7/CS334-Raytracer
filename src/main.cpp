@@ -21,9 +21,9 @@ static const int   threads = 12;
 static const int   max_ray_depth = 100;
 static const int   rays_per_pixel = 10;
 
-static const Vec3  camera_origin = Vec3(0, 3, 10);
-static const float aperture = 0.08;
-static const float focal_distance = 10;
+static const Vec3  camera_origin = Vec3(0, 2.5, 8);
+static const float aperture = 0.3;
+static const float focal_distance = 8;
 
 Environment environment = Environment(width, height, threads, max_ray_depth, rays_per_pixel);
 
@@ -34,32 +34,42 @@ void initialize_scene() {
     environment.update_camera_position(camera_origin);
     environment.update_camera_settings(aperture, focal_distance);
 
-    Material floor(Color(0.95f, 0.95f, 0.95f), 0.2f, 0.0f);
+    Material floor(Color(0.4f, 0.4f, 0.4f), 1.0f, 0.18f);
     environment.add_object(std::make_shared<Plane>(
         Vec3(0, 0, 0), Vec3(0, 1, 0), floor
-    ));
-
-    Material wall(Color(0.95f, 0.95f, 0.95f), 0.3f, 0.0f);
-    make_square(
-        Vec3(-20, 0, -14),
-        Vec3( 5, 0, -14),
-        wall
-    );
-
-    Material glass(Color(1.0f, 1.0f, 1.0f), 1.0f, 1.0f);
-    glass.transmission = 1;
-    glass.refractive_index = 1.52f;
-    glass.glass_roughness = 0.0f;
-    glass.tint = Color(1.0f, 1.0f, 1.0f);
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-8, 4, -6), 4, glass
     ));
 
     Material light(Color(1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
     light.emission_strength = 1.0f;
     light.emission_color = Color(0.99f, 0.99f, 0.99f);
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-40, 30, 10), 8, light
+        Vec3(-40, 40, 20), 8, light
+    ));
+
+    // add objects 
+
+    Material glossy_white(Color(1,1,1), 0.9,0.5);
+    Material glossy_red(Color(1,0.05,0.05), 0.9,0.5);
+    Material glossy_blue(Color(0.05,0.05,1), 0.9,0.5);
+    // white ball
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(0, 2, 0), 2, glossy_white
+    ));
+
+    // red balls
+    // big red ball
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(7, 4, -2), 4, glossy_red
+    ));
+
+    // small red ball
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(-5.5, 1.5, -1.5), 1.5, glossy_red
+    ));
+
+    // back blue ball
+    environment.add_object(std::make_shared<Sphere>(
+        Vec3(3, 4, -9), 4, glossy_blue
     ));
 }
 
