@@ -1,6 +1,7 @@
 #include "Color.h"
 #include <algorithm>
 #include <stdexcept>
+#include <cmath>
 
 Color::Color() : r(0.0f), g(0.0f), b(0.0f) {}
 

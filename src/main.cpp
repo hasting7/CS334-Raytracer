@@ -36,13 +36,13 @@ void initialize_scene() {
 
     Material floor(Color(0.95f, 0.95f, 0.95f), 0.2f, 0.0f);
     environment.add_object(std::make_shared<Plane>(
-        Vec3(0, 0, 0), Vec3(0, 1, 0), floor
+        Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), floor
     ));
 
     Material wall(Color(0.95f, 0.95f, 0.95f), 0.3f, 0.0f);
     make_square(
-        Vec3(-20, 0, -14),
-        Vec3( 5, 0, -14),
+        Vec3(-20.0f, 0.0f, -14.0f),
+        Vec3(5.0f, 0.0f, -14.0f),
         wall
     );
 
@@ -52,14 +52,14 @@ void initialize_scene() {
     glass.glass_roughness = 0.0f;
     glass.tint = Color(1.0f, 1.0f, 1.0f);
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-8, 4, -6), 4, glass
+        Vec3(-8.0f, 4.0f, -6.0f), 4.0f, glass
     ));
 
     Material light(Color(1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
     light.emission_strength = 1.0f;
     light.emission_color = Color(0.99f, 0.99f, 0.99f);
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-40, 30, 10), 8, light
+        Vec3(-40.0f, 30.0f, 10.0f), 8.0f, light
     ));
 }
 
