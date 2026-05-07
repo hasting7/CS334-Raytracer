@@ -11,3 +11,4 @@
 /src/*.dll
 /src/*.pdb
 /src/*.ilk
+/src/main.cpp
