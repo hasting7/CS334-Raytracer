@@ -70,16 +70,12 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
                 : init_refractive_index;
 
             Vec3 refracted_dir = apply_snells(
-                ray.direction.normalize(),
-                record.normal,
-                n1,
-                n2
+                ray.direction.normalize(), record.normal, n1, n2
             ).normalize();
 
             if (material.glass_roughness > 0.0f) {
                 refracted_dir = (
-                    refracted_dir +
-                    random_in_hemisphere(refracted_dir) * material.glass_roughness
+                    refracted_dir + random_in_hemisphere(refracted_dir) * material.glass_roughness
                 ).normalize();
             }
 
@@ -105,15 +101,11 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
             float distance_to_light = to_light.magnitude();
             Vec3 light_dir = to_light.normalize();
 
-            float n_dot_l = std::max(
-                0.0f,
-                static_cast<float>(record.normal * light_dir)
+            float n_dot_l = std::max( 0.0f, static_cast<float>(record.normal * light_dir)
             );
 
             if (n_dot_l > 0.0f) {
-                Ray direct_calc_ray(
-                    record.point + record.normal * 0.001f,
-                    light_dir
+                Ray direct_calc_ray( record.point + record.normal * 0.001f, light_dir
                 );
 
                 HitRecord light_hit = calculate_ray_collision(direct_calc_ray);
@@ -126,11 +118,7 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
                     // Diffuse direct lighting
                     float diffuse_weight = 1.0f - material.specular_probability;
 
-                    Color diffuse_direct =
-                        emitted_light *
-                        material.color *
-                        n_dot_l *
-                        diffuse_weight;
+                    Color diffuse_direct = emitted_light * material.color * n_dot_l * diffuse_weight;
 
                     // Specular direct lighting
                     float specular_weight = material.specular_probability;
@@ -144,9 +132,7 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
                         Vec3 reflected_light_dir = (-light_dir).reflect(record.normal).normalize();
 
                         // How close is the view direction to the perfect reflection?
-                        float alignment = std::max(
-                            0.0f,
-                            static_cast<float>(reflected_light_dir * view_dir)
+                        float alignment = std::max(0.0f, static_cast<float>(reflected_light_dir * view_dir)
                         );
 
                         // reflectivity controls how tight the highlight is:
@@ -163,10 +149,7 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
                         }
 
                         specular_direct =
-                            emitted_light *
-                            material.specular_color *
-                            spec_amount *
-                            specular_weight;
+                            emitted_light * material.specular_color * spec_amount * specular_weight;
                     }
 
                     Color direct_light = diffuse_direct + specular_direct;

@@ -12,14 +12,14 @@ public:
 
     // subtraction properties
     Vec3 operator-() const;
-    Vec3& operator-=(const Vec3& other); // FIXED: Added const
+    Vec3& operator-=(const Vec3& other);
     Vec3 operator-(const Vec3& other) const;
 
 	Vec3& operator-=(double value);
     Vec3 operator-(double value) const;
 
     // addtion properties
-    Vec3& operator+=(const Vec3& other); // FIXED: Added const
+    Vec3& operator+=(const Vec3& other);
     Vec3 operator+(const Vec3& other) const;
 
     Vec3& operator+=(double value);
