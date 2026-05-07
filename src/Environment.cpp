@@ -11,7 +11,6 @@
 #include <random>
 #include <thread>
 
-// Helper to generate random numbers for Anti-Aliasing
 
 Environment::Environment(int width, int height, int thread_count, int max_depth, int samples_per_pixel) : 
     width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count),
@@ -153,7 +152,7 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
                         // reflectivity controls how tight the highlight is:
                         // 0.0 -> broad / loose
                         // 1.0 -> extremely tight / almost mirror
-                        float min_alignment = material.reflectivity;
+                        float min_alignment = material.smoothness;
 
                         float spec_amount = 0.0f;
 
@@ -172,9 +171,6 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
 
                     Color direct_light = diffuse_direct + specular_direct;
 
-                    // Optional physically-based falloff:
-                    // direct_light /= (distance_to_light * distance_to_light);
-
                     incoming_light += direct_light * ray_color;
                 }
             }
@@ -187,8 +183,8 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
 
         if (is_specular_reflection) {
             ray.direction = (
-                diffuse_dir * (1.0f - material.reflectivity) +
-                reflect_dir * material.reflectivity
+                diffuse_dir * (1.0f - material.smoothness) +
+                reflect_dir * material.smoothness
             ).normalize();
 
             ray_color *= material.specular_color;

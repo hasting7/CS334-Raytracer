@@ -34,10 +34,6 @@ void initialize_scene() {
     environment.update_camera_position(camera_origin);
     environment.update_camera_settings(aperture, focal_distance);
 
-    environment.update_camera_position(camera_origin);
-    environment.update_camera_settings(aperture, focal_distance);
-
-
     Material floor(Color(0.95f, 0.95f, 0.95f), 0.2f, 0.0f);
     environment.add_object(std::make_shared<Plane>(
         Vec3(0, 0, 0), Vec3(0, 1, 0), floor
