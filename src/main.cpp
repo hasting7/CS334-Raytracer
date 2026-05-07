@@ -19,7 +19,7 @@ static const int   height = 600;
 static const int   threads = 12;
 
 static const int   max_ray_depth = 100;
-static const int   rays_per_pixel = 500;
+static const int   rays_per_pixel = 10;
 
 static const Vec3  camera_origin = Vec3(0, 3, 10);
 static const float aperture = 0.08;

@@ -16,8 +16,8 @@ struct Material {
 
 
 
-    Material() : color(Color(255, 255, 255)), reflectivity(0.0f), specular_probability(1.0f) {}
+    Material() : color(Color(255, 255, 255)), smoothness(0.0f), specular_probability(1.0f) {}
     
-    Material(Color c, float r, float sp) : color(c), reflectivity(r), specular_probability(sp) {}
+    Material(Color c, float r, float sp) : color(c), smoothness(r), specular_probability(sp) {}
 };
 
