@@ -12,3 +12,4 @@
 /src/*.pdb
 /src/*.ilk
 /src/main.cpp
+.CMakeLists.txt

@@ -10,7 +10,7 @@
 
 class Environment {
 public:
-    Environment(int width, int height, int threads, int max_depth, int samples_per_pixel);
+    Environment(int width, int height, int threads, int max_depth, int samples_per_pixel, bool use_skybox);
     
     void add_object(std::shared_ptr<Object> object);
     void update_camera_position(const Vec3 position);
@@ -39,4 +39,5 @@ private:
     // Quality settings
     int max_depth;
     int samples_per_pixel;
+    bool use_skybox;
 };

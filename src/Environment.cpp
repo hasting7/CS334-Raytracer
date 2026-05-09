@@ -12,9 +12,9 @@
 #include <thread>
 
 
-Environment::Environment(int width, int height, int thread_count, int max_depth, int samples_per_pixel) : 
+Environment::Environment(int width, int height, int thread_count, int max_depth, int samples_per_pixel, bool use_skybox) : 
     width(width), height(height), framebuffer(width * height, 0xFF000000), thread_count(thread_count),
-    max_depth(max_depth), samples_per_pixel(samples_per_pixel)
+    max_depth(max_depth), samples_per_pixel(samples_per_pixel), use_skybox(use_skybox)
 {
     float aspect_ratio = (float)width / height;
     this->camera = Camera(Vec3(0, 0, 0), aspect_ratio, 0.0f, 0.0f);
@@ -33,6 +33,15 @@ void Environment::add_object(std::shared_ptr<Object> object) {
     }
 }
 
+Color get_skybox_color(const Ray& ray) {
+    Vec3 unitDir = ray.direction.normalize();
+    float t = 0.5f * (unitDir.y + 1.0f);
+
+    Color white(1.0f, 1.0f, 1.0f);
+    Color skyBlue(0.5f, 0.7f, 1.0f);
+
+    return (1.0f - t) * white + t * skyBlue;
+}
 
 Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) {
     Color incoming_light(0.0f, 0.0f, 0.0f);
@@ -46,7 +55,10 @@ Color Environment::trace(Ray& ray, int max_depth, double init_refractive_index) 
         HitRecord record = calculate_ray_collision(ray);
 
         if (!record.hit) {
-            // maybe add natural lighting later
+            if (use_skybox) {
+                incoming_light += get_skybox_color(ray) * ray_color;
+            }
+
             break;
         }
 
