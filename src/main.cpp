@@ -19,12 +19,12 @@ static const int   height = 600;
 static const int   threads = 12;
 
 static const int   max_ray_depth = 100;
-static const int   rays_per_pixel = 100;
+static const int   rays_per_pixel = 250;
 
 static const Vec3  camera_origin = Vec3(0, 2.5, 8);
-static const float aperture = 0.5;
+static const float aperture = 0.1;
 static const float focal_distance = 8;
-static const bool  use_skybox = false;
+static const bool  use_skybox = true;
 
 Environment environment = Environment(width, height, threads, max_ray_depth, rays_per_pixel, use_skybox);
 
@@ -36,81 +36,35 @@ void initialize_scene() {
     environment.update_camera_settings(aperture, focal_distance);
 
     Material floor(Color(0.4f, 0.4f, 0.4f), 1.0f, 0.18f);
-    environment.add_object(std::make_shared<Plane>(
-        Vec3(0, 0, 0), Vec3(0, 1, 0), floor
-    ));
 
     Material light(Color(1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
     light.emission_strength = 1.0f;
     light.emission_color = Color(0.99f, 0.99f, 0.99f);
+
+
+    environment.add_object(std::make_shared<Plane>(
+        Vec3(0, 0, 0), Vec3(0, 1, 0), floor
+    ));
     environment.add_object(std::make_shared<Sphere>(
         Vec3(-40, 40, 20), 15, light
     ));
 
-    // add objects 
-
-    float smoothness = 0.95f;
-    float specular_p  = 0.4f;
-
-    Material glossy_white(Color(1,1,1), smoothness, specular_p);
-    Material glossy_red(Color(1,0,0), smoothness, specular_p);
-    Material glossy_green(Color(0,1,0), smoothness, specular_p);
-    glossy_green.emission_strength = 1.0;
-    glossy_green.emission_color = Color(0.01,1.0,0.01);
-    Material glossy_blue(Color(0,0,1), smoothness, specular_p);
-    Material glossy_purple(Color(0.3,0.01,0.39), smoothness, specular_p);
-
-    Material glass(Color(1.0,1.0,1.0), smoothness, specular_p);
-    glass.transmission = 1.0f;
-    glass.tint = Color(1,1,1);
-    glass.refractive_index = 2.4;
-
-    // white ball
+    Material red(Color(1.0f,0.0f,0.0f), 0.0f, 0.0f);
+    Material green(Color(0.0f,1.0f,0.0f), 1.0f, 0.1f);
+    Material blue(Color(0.0f,0.0f,1.0f), 1.0f, 0.5f);
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(0, 2, 0), 2, glass
+        Vec3(-4.2f, 2, 0), 2, red
     ));
 
-    // red balls
-    // big red ball
+    green.transmission = 1.0f;
+    green.tint = Color(0.0f,1.0f,0.0f);
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(7, 4, -2), 4, glossy_red
-    ));
-
-    // small red ball
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-5, 1.5, -1), 1.5, glossy_red
-    ));
-
-    // back blue ball
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(3, 4, -9), 4, glossy_blue
-    ));
-
-    // front blue ball
-
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-3.75, 1.5, 4), 1.5, glossy_blue
-    ));
-
-    // purple balls
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(3, 1, 3), 1, glossy_purple
+        Vec3(0, 2, 0), 2, green
     ));
 
     environment.add_object(std::make_shared<Sphere>(
-        Vec3(-8, 4, -8), 4, glossy_purple
+        Vec3(4.2f, 2, 0), 2, blue
     ));
-
-    // green balls
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(-2.4, 1.2, -3), 1.4, glossy_green
-    ));
-
-    glossy_green.emission_strength = 0;
-    environment.add_object(std::make_shared<Sphere>(
-        Vec3(6.7, 1.1, 3.2), 1.1, glossy_green
-    ));
-
 }
 
 
