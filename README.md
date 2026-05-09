@@ -1,6 +1,6 @@
 # CS334 Ray Tracer
 
-A ray tracer built in C++ for CS334. Group project.
+A ray tracer built in C++ for CS334.
 
 ## Project Structure
 
@@ -21,7 +21,7 @@ A ray tracer built in C++ for CS334. Group project.
 | macOS | ✅ Best supported |
 | Windows | ⚠️ Additional environment setup required |
 
-> **Windows users:** You'll need to configure your build environment manually (e.g. install CMake, a C++ compiler via MSYS2/MinGW or MSVC, and SDL2). Reach out if you need help getting set up.
+> **Windows users:** You'll need to configure your build environment manually (e.g. install CMake, a C++ compiler via MSYS2/MinGW or MSVC, and SDL2).
 
 ## Building & Running (macOS)
 
